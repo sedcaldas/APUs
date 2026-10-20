@@ -45,9 +45,12 @@ async function loadStatic(resource) {
     } catch (e) {}
   }
 
-  // Base URL handling for relative data loading
-  const baseDataUrl = new URL(`./data/${resource}.json`, import.meta.url).href;
-  const res = await fetch(baseDataUrl);
+  // Base URL handling for relative data loading (from /js/ to /data/)
+  const baseDataUrl = new URL(`../data/${resource}.json`, import.meta.url).href;
+  let res = await fetch(baseDataUrl);
+  if (!res.ok) {
+    res = await fetch(`./data/${resource}.json`);
+  }
   if (!res.ok) throw new Error(`Error cargando datos estáticos: ${resource}`);
   const data = await res.json();
   staticCache[resource] = data;
