@@ -1,0 +1,521 @@
+[
+  {
+    "id": 1,
+    "codigo": "CALDAS-EDU-2026-001",
+    "nombre": "Construcción Bloque de 6 Aulas y Laboratorio STEM — I.E. Universitario de Caldas",
+    "tipo_intervencion": "Construcción",
+    "objeto": "Construcción de infraestructura educativa en 2 niveles con estructura sismorresistente, baterías sanitarias y redes técnicas.",
+    "estado": "Aprobado",
+    "responsable": "Arq. Marcela Cárdenas",
+    "fuente_financiacion": "Sistema General de Regalías (SGR) & Recursos Propios Caldas",
+    "fecha_inicio": "2026-02-01",
+    "fecha_fin": "2026-08-31",
+    "sedes": [
+      {
+        "sede_id": 1,
+        "codigo_dane": "11700100012301",
+        "nombre": "SEDE PRINCIPAL UNIVERSITARIO",
+        "institucion": "INSTITUCIÓN EDUCATIVA UNIVERSITARIO DE CALDAS",
+        "municipio": "Manizales",
+        "zona": "Urbana",
+        "alcance_sede": "Construcción bloque aulas sede principal Manizales"
+      }
+    ],
+    "presupuestos": [
+      {
+        "id": 1,
+        "proyecto_id": 1,
+        "proyecto_codigo": "CALDAS-EDU-2026-001",
+        "proyecto_nombre": "Construcción Bloque de 6 Aulas y Laboratorio STEM — I.E. Universitario de Caldas",
+        "version": 1,
+        "vigencia": 2026,
+        "estado": "Aprobado",
+        "costo_directo": 626363370.0,
+        "costo_indirecto": 156590842.5,
+        "porcentaje_aiu": 0.25,
+        "valor_total": 782954212.5,
+        "moneda": "COP",
+        "observaciones": null,
+        "aprobado_por": "Dr. Luis Fernando Patiño (Secretario Aprobador)",
+        "fecha_aprobacion": "2026-10-20T19:02:54.445671",
+        "capitulos": [
+          {
+            "capitulo_id": 2,
+            "codigo": "001",
+            "descripcion": "PRELIMINARES",
+            "subtotal_capitulo": 83329680.0,
+            "items": [
+              {
+                "id": 1,
+                "item_num": "001.1",
+                "actividad_id": 2,
+                "actividad_codigo": "AB1",
+                "actividad_desc": "ACERO 60.000 PSI (INCLUYE ALAMBRE NEGRO Y FIGURACIÓN )",
+                "unidad": "KG",
+                "cantidad": 35.0,
+                "precio_unitario": 8426.0,
+                "subtotal": 294910.0,
+                "orden": 1,
+                "observaciones": "Partida contractual para obra CALDAS-EDU-2026-001"
+              },
+              {
+                "id": 2,
+                "item_num": "001.2",
+                "actividad_id": 3,
+                "actividad_codigo": "AB2",
+                "actividad_desc": "CONCRETO 1500 psi - 10.5 Mpa",
+                "unidad": "M3",
+                "cantidad": 45.0,
+                "precio_unitario": 459879.0,
+                "subtotal": 20694555.0,
+                "orden": 2,
+                "observaciones": "Partida contractual para obra CALDAS-EDU-2026-001"
+              },
+              {
+                "id": 3,
+                "item_num": "001.3",
+                "actividad_id": 4,
+                "actividad_codigo": "AB3",
+                "actividad_desc": "CONCRETO 2000 PSI - 14 MPA",
+                "unidad": "M3",
+                "cantidad": 55.0,
+                "precio_unitario": 479380.0,
+                "subtotal": 26365900.0,
+                "orden": 3,
+                "observaciones": "Partida contractual para obra CALDAS-EDU-2026-001"
+              },
+              {
+                "id": 4,
+                "item_num": "001.4",
+                "actividad_id": 5,
+                "actividad_codigo": "AB4",
+                "actividad_desc": "CONCRETO 2500 psi - 17.5 Mpa",
+                "unidad": "M3",
+                "cantidad": 65.0,
+                "precio_unitario": 553451.0,
+                "subtotal": 35974315.0,
+                "orden": 4,
+                "observaciones": "Partida contractual para obra CALDAS-EDU-2026-001"
+              }
+            ]
+          },
+          {
+            "capitulo_id": 3,
+            "codigo": "002",
+            "descripcion": "MOVIMIENTO DE TIERRAS",
+            "subtotal_capitulo": 222211295.0,
+            "items": [
+              {
+                "id": 5,
+                "item_num": "002.5",
+                "actividad_id": 6,
+                "actividad_codigo": "AB5",
+                "actividad_desc": "CONCRETO 3000 psi - 21 Mpa",
+                "unidad": "M3",
+                "cantidad": 75.0,
+                "precio_unitario": 618935.0,
+                "subtotal": 46420125.0,
+                "orden": 5,
+                "observaciones": "Partida contractual para obra CALDAS-EDU-2026-001"
+              },
+              {
+                "id": 6,
+                "item_num": "002.6",
+                "actividad_id": 7,
+                "actividad_codigo": "AB6",
+                "actividad_desc": "CONCRETO 3500 psi - 24.5 Mpa",
+                "unidad": "M3",
+                "cantidad": 85.0,
+                "precio_unitario": 686037.0,
+                "subtotal": 58313145.0,
+                "orden": 6,
+                "observaciones": "Partida contractual para obra CALDAS-EDU-2026-001"
+              },
+              {
+                "id": 7,
+                "item_num": "002.7",
+                "actividad_id": 8,
+                "actividad_codigo": "AB7",
+                "actividad_desc": "CONCRETO 4000 psi - 28 Mpa",
+                "unidad": "M3",
+                "cantidad": 95.0,
+                "precio_unitario": 710143.0,
+                "subtotal": 67463585.0,
+                "orden": 7,
+                "observaciones": "Partida contractual para obra CALDAS-EDU-2026-001"
+              },
+              {
+                "id": 8,
+                "item_num": "002.8",
+                "actividad_id": 9,
+                "actividad_codigo": "AB8",
+                "actividad_desc": "CONCRETO 1500 psi - 10.5 Mpa Impermeabilizado",
+                "unidad": "M3",
+                "cantidad": 105.0,
+                "precio_unitario": 476328.0,
+                "subtotal": 50014440.0,
+                "orden": 8,
+                "observaciones": "Partida contractual para obra CALDAS-EDU-2026-001"
+              }
+            ]
+          },
+          {
+            "capitulo_id": 7,
+            "codigo": "005",
+            "descripcion": "ESTRUCTURAS EN CONCRETO, METALICAS Y DE MADERA",
+            "subtotal_capitulo": 320822395.0,
+            "items": [
+              {
+                "id": 9,
+                "item_num": "005.9",
+                "actividad_id": 10,
+                "actividad_codigo": "AB9",
+                "actividad_desc": "CONCRETO 2000 psi - 14 Mpa Impermeabilizado",
+                "unidad": "M3",
+                "cantidad": 115.0,
+                "precio_unitario": 497396.0,
+                "subtotal": 57200540.0,
+                "orden": 9,
+                "observaciones": "Partida contractual para obra CALDAS-EDU-2026-001"
+              },
+              {
+                "id": 10,
+                "item_num": "005.10",
+                "actividad_id": 11,
+                "actividad_codigo": "AB10",
+                "actividad_desc": "CONCRETO 2500 psi - 17.5 Mpa Impermeabilizado",
+                "unidad": "M3",
+                "cantidad": 125.0,
+                "precio_unitario": 576950.0,
+                "subtotal": 72118750.0,
+                "orden": 10,
+                "observaciones": "Partida contractual para obra CALDAS-EDU-2026-001"
+              },
+              {
+                "id": 11,
+                "item_num": "005.11",
+                "actividad_id": 12,
+                "actividad_codigo": "AB11",
+                "actividad_desc": "CONCRETO 3000 psi - 21 Mpa Impermeabilizado",
+                "unidad": "M3",
+                "cantidad": 135.0,
+                "precio_unitario": 646351.0,
+                "subtotal": 87257385.0,
+                "orden": 11,
+                "observaciones": "Partida contractual para obra CALDAS-EDU-2026-001"
+              },
+              {
+                "id": 12,
+                "item_num": "005.12",
+                "actividad_id": 13,
+                "actividad_codigo": "AB12",
+                "actividad_desc": "CONCRETO 3500 psi - 24.5 Mpa Impermeabilizado",
+                "unidad": "M3",
+                "cantidad": 145.0,
+                "precio_unitario": 718936.0,
+                "subtotal": 104245720.0,
+                "orden": 12,
+                "observaciones": "Partida contractual para obra CALDAS-EDU-2026-001"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "codigo": "CALDAS-EDU-2026-002",
+    "nombre": "Adecuación Integral y Baterías Sanitarias — I.E. Alfonso López",
+    "tipo_intervencion": "Adecuación",
+    "objeto": "Mejoramiento hidrosanitario, reposición de pisos y adecuación de baterías para inclusión de personas con movilidad reducida.",
+    "estado": "En Revisión",
+    "responsable": "Ing. Carlos Echeverry",
+    "fuente_financiacion": "Sistema General de Participaciones (SGP) Educación",
+    "fecha_inicio": "2026-03-01",
+    "fecha_fin": "2026-07-15",
+    "sedes": [
+      {
+        "sede_id": 8,
+        "codigo_dane": "11738000022201",
+        "nombre": "SEDE PRINCIPAL ALFONSO LÓPEZ",
+        "institucion": "INSTITUCIÓN EDUCATIVA ALFONSO LÓPEZ",
+        "municipio": "La Dorada",
+        "zona": "Urbana",
+        "alcance_sede": "Adecuación sanitaria integral sede urbana La Dorada"
+      }
+    ],
+    "presupuestos": [
+      {
+        "id": 2,
+        "proyecto_id": 2,
+        "proyecto_codigo": "CALDAS-EDU-2026-002",
+        "proyecto_nombre": "Adecuación Integral y Baterías Sanitarias — I.E. Alfonso López",
+        "version": 1,
+        "vigencia": 2026,
+        "estado": "En Revisión",
+        "costo_directo": 162751935.0,
+        "costo_indirecto": 40687983.75,
+        "porcentaje_aiu": 0.25,
+        "valor_total": 203439918.75,
+        "moneda": "COP",
+        "observaciones": null,
+        "aprobado_por": null,
+        "fecha_aprobacion": null,
+        "capitulos": [
+          {
+            "capitulo_id": 2,
+            "codigo": "001",
+            "descripcion": "PRELIMINARES",
+            "subtotal_capitulo": 162751935.0,
+            "items": [
+              {
+                "id": 13,
+                "item_num": "1.1",
+                "actividad_id": 2,
+                "actividad_codigo": "AB1",
+                "actividad_desc": "ACERO 60.000 PSI (INCLUYE ALAMBRE NEGRO Y FIGURACIÓN )",
+                "unidad": "KG",
+                "cantidad": 20.0,
+                "precio_unitario": 8426.0,
+                "subtotal": 168520.0,
+                "orden": 1,
+                "observaciones": "Mantenimiento preventivo y correctivo"
+              },
+              {
+                "id": 14,
+                "item_num": "1.2",
+                "actividad_id": 3,
+                "actividad_codigo": "AB2",
+                "actividad_desc": "CONCRETO 1500 psi - 10.5 Mpa",
+                "unidad": "M3",
+                "cantidad": 25.0,
+                "precio_unitario": 459879.0,
+                "subtotal": 11496975.0,
+                "orden": 2,
+                "observaciones": "Mantenimiento preventivo y correctivo"
+              },
+              {
+                "id": 15,
+                "item_num": "1.3",
+                "actividad_id": 4,
+                "actividad_codigo": "AB3",
+                "actividad_desc": "CONCRETO 2000 PSI - 14 MPA",
+                "unidad": "M3",
+                "cantidad": 30.0,
+                "precio_unitario": 479380.0,
+                "subtotal": 14381400.0,
+                "orden": 3,
+                "observaciones": "Mantenimiento preventivo y correctivo"
+              },
+              {
+                "id": 16,
+                "item_num": "1.4",
+                "actividad_id": 5,
+                "actividad_codigo": "AB4",
+                "actividad_desc": "CONCRETO 2500 psi - 17.5 Mpa",
+                "unidad": "M3",
+                "cantidad": 35.0,
+                "precio_unitario": 553451.0,
+                "subtotal": 19370785.0,
+                "orden": 4,
+                "observaciones": "Mantenimiento preventivo y correctivo"
+              },
+              {
+                "id": 17,
+                "item_num": "1.5",
+                "actividad_id": 6,
+                "actividad_codigo": "AB5",
+                "actividad_desc": "CONCRETO 3000 psi - 21 Mpa",
+                "unidad": "M3",
+                "cantidad": 40.0,
+                "precio_unitario": 618935.0,
+                "subtotal": 24757400.0,
+                "orden": 5,
+                "observaciones": "Mantenimiento preventivo y correctivo"
+              },
+              {
+                "id": 18,
+                "item_num": "1.6",
+                "actividad_id": 7,
+                "actividad_codigo": "AB6",
+                "actividad_desc": "CONCRETO 3500 psi - 24.5 Mpa",
+                "unidad": "M3",
+                "cantidad": 45.0,
+                "precio_unitario": 686037.0,
+                "subtotal": 30871665.0,
+                "orden": 6,
+                "observaciones": "Mantenimiento preventivo y correctivo"
+              },
+              {
+                "id": 19,
+                "item_num": "1.7",
+                "actividad_id": 8,
+                "actividad_codigo": "AB7",
+                "actividad_desc": "CONCRETO 4000 psi - 28 Mpa",
+                "unidad": "M3",
+                "cantidad": 50.0,
+                "precio_unitario": 710143.0,
+                "subtotal": 35507150.0,
+                "orden": 7,
+                "observaciones": "Mantenimiento preventivo y correctivo"
+              },
+              {
+                "id": 20,
+                "item_num": "1.8",
+                "actividad_id": 9,
+                "actividad_codigo": "AB8",
+                "actividad_desc": "CONCRETO 1500 psi - 10.5 Mpa Impermeabilizado",
+                "unidad": "M3",
+                "cantidad": 55.0,
+                "precio_unitario": 476328.0,
+                "subtotal": 26198040.0,
+                "orden": 8,
+                "observaciones": "Mantenimiento preventivo y correctivo"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "codigo": "CALDAS-EDU-2026-003",
+    "nombre": "Mantenimiento de Cubiertas y Placas Polideportivas — I.E. San Jerónimo",
+    "tipo_intervencion": "Mantenimiento",
+    "objeto": "Impermeabilización de cubiertas, reposición de caballetes y mantenimiento de escenarios deportivos escolares.",
+    "estado": "Borrador",
+    "responsable": "Arq. Marcela Cárdenas",
+    "fuente_financiacion": "Recursos Propios Municipio de Riosucio y Caldas",
+    "fecha_inicio": "2026-04-01",
+    "fecha_fin": "2026-09-30",
+    "sedes": [
+      {
+        "sede_id": 10,
+        "codigo_dane": "11761400033301",
+        "nombre": "SEDE PRINCIPAL SAN JERÓNIMO",
+        "institucion": "INSTITUCIÓN EDUCATIVA SAN JERÓNIMO",
+        "municipio": "Riosucio",
+        "zona": "Urbana",
+        "alcance_sede": "Sede Urbana Riosucio"
+      },
+      {
+        "sede_id": 11,
+        "codigo_dane": "11761400033302",
+        "nombre": "SEDE RESGUARDO CAÑAMOMO LOMAPRIETA",
+        "institucion": "INSTITUCIÓN EDUCATIVA SAN JERÓNIMO",
+        "municipio": "Riosucio",
+        "zona": "Rural",
+        "alcance_sede": "Sede Rural Resguardo"
+      }
+    ],
+    "presupuestos": [
+      {
+        "id": 3,
+        "proyecto_id": 3,
+        "proyecto_codigo": "CALDAS-EDU-2026-003",
+        "proyecto_nombre": "Mantenimiento de Cubiertas y Placas Polideportivas — I.E. San Jerónimo",
+        "version": 1,
+        "vigencia": 2026,
+        "estado": "Borrador",
+        "costo_directo": 202777110.0,
+        "costo_indirecto": 50694277.5,
+        "porcentaje_aiu": 0.25,
+        "valor_total": 253471387.5,
+        "moneda": "COP",
+        "observaciones": null,
+        "aprobado_por": null,
+        "fecha_aprobacion": null,
+        "capitulos": [
+          {
+            "capitulo_id": 2,
+            "codigo": "001",
+            "descripcion": "PRELIMINARES",
+            "subtotal_capitulo": 202777110.0,
+            "items": [
+              {
+                "id": 21,
+                "item_num": "1.1",
+                "actividad_id": 6,
+                "actividad_codigo": "AB5",
+                "actividad_desc": "CONCRETO 3000 psi - 21 Mpa",
+                "unidad": "M3",
+                "cantidad": 38.0,
+                "precio_unitario": 618935.0,
+                "subtotal": 23519530.0,
+                "orden": 1,
+                "observaciones": null
+              },
+              {
+                "id": 22,
+                "item_num": "1.2",
+                "actividad_id": 7,
+                "actividad_codigo": "AB6",
+                "actividad_desc": "CONCRETO 3500 psi - 24.5 Mpa",
+                "unidad": "M3",
+                "cantidad": 46.0,
+                "precio_unitario": 686037.0,
+                "subtotal": 31557702.0,
+                "orden": 2,
+                "observaciones": null
+              },
+              {
+                "id": 23,
+                "item_num": "1.3",
+                "actividad_id": 8,
+                "actividad_codigo": "AB7",
+                "actividad_desc": "CONCRETO 4000 psi - 28 Mpa",
+                "unidad": "M3",
+                "cantidad": 54.0,
+                "precio_unitario": 710143.0,
+                "subtotal": 38347722.0,
+                "orden": 3,
+                "observaciones": null
+              },
+              {
+                "id": 24,
+                "item_num": "1.4",
+                "actividad_id": 9,
+                "actividad_codigo": "AB8",
+                "actividad_desc": "CONCRETO 1500 psi - 10.5 Mpa Impermeabilizado",
+                "unidad": "M3",
+                "cantidad": 62.0,
+                "precio_unitario": 476328.0,
+                "subtotal": 29532336.0,
+                "orden": 4,
+                "observaciones": null
+              },
+              {
+                "id": 25,
+                "item_num": "1.5",
+                "actividad_id": 10,
+                "actividad_codigo": "AB9",
+                "actividad_desc": "CONCRETO 2000 psi - 14 Mpa Impermeabilizado",
+                "unidad": "M3",
+                "cantidad": 70.0,
+                "precio_unitario": 497396.0,
+                "subtotal": 34817720.0,
+                "orden": 5,
+                "observaciones": null
+              },
+              {
+                "id": 26,
+                "item_num": "1.6",
+                "actividad_id": 11,
+                "actividad_codigo": "AB10",
+                "actividad_desc": "CONCRETO 2500 psi - 17.5 Mpa Impermeabilizado",
+                "unidad": "M3",
+                "cantidad": 78.0,
+                "precio_unitario": 576950.0,
+                "subtotal": 45002100.0,
+                "orden": 6,
+                "observaciones": null
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

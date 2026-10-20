@@ -1,0 +1,252 @@
+{
+  "aiu": [
+    {
+      "id": 1,
+      "capitulo_indirecto": "1. GASTOS GENERALES",
+      "concepto": "Ingeniero Director",
+      "unidad": "Mes",
+      "cantidad": 5.0,
+      "dedicacion": 1.0,
+      "valor_unitario": 6700000.0,
+      "factor_prestacional_aiu": 0.6556,
+      "valor_total": 55462600.0
+    },
+    {
+      "id": 2,
+      "capitulo_indirecto": "1. GASTOS GENERALES",
+      "concepto": "Ingeniero Residente",
+      "unidad": "Mes",
+      "cantidad": 5.0,
+      "dedicacion": 1.0,
+      "valor_unitario": 4500000.0,
+      "factor_prestacional_aiu": 0.6556,
+      "valor_total": 37251000.0
+    },
+    {
+      "id": 3,
+      "capitulo_indirecto": "1. GASTOS GENERALES",
+      "concepto": "Maestro de Obra",
+      "unidad": "Mes",
+      "cantidad": 5.0,
+      "dedicacion": 1.0,
+      "valor_unitario": 3600000.0,
+      "factor_prestacional_aiu": 0.6556,
+      "valor_total": 29800800.0
+    },
+    {
+      "id": 4,
+      "capitulo_indirecto": "1. GASTOS GENERALES",
+      "concepto": "Residente de Salud Ocupacional",
+      "unidad": "Mes",
+      "cantidad": 5.0,
+      "dedicacion": 1.0,
+      "valor_unitario": 3600000.0,
+      "factor_prestacional_aiu": 0.6556,
+      "valor_total": 29800800.0
+    },
+    {
+      "id": 5,
+      "capitulo_indirecto": "1. GASTOS GENERALES",
+      "concepto": "Campamento y Oficina de Obra",
+      "unidad": "Mes",
+      "cantidad": 5.0,
+      "dedicacion": 1.0,
+      "valor_unitario": 800000.0,
+      "factor_prestacional_aiu": 0.0,
+      "valor_total": 4000000.0
+    },
+    {
+      "id": 6,
+      "capitulo_indirecto": "1. GASTOS GENERALES",
+      "concepto": "Sistema de Gestión Ambiental y Ensayos de Calidad",
+      "unidad": "Mes",
+      "cantidad": 5.0,
+      "dedicacion": 1.0,
+      "valor_unitario": 3000000.0,
+      "factor_prestacional_aiu": 0.0,
+      "valor_total": 15000000.0
+    },
+    {
+      "id": 7,
+      "capitulo_indirecto": "2. GASTOS INDIRECTOS",
+      "concepto": "Póliza de Cumplimiento y Responsabilidad Civil",
+      "unidad": "Global",
+      "cantidad": 1.0,
+      "dedicacion": 1.0,
+      "valor_unitario": 4500000.0,
+      "factor_prestacional_aiu": 0.0,
+      "valor_total": 4500000.0
+    },
+    {
+      "id": 8,
+      "capitulo_indirecto": "2. GASTOS INDIRECTOS",
+      "concepto": "Vallas y Señalización Institucional",
+      "unidad": "M2",
+      "cantidad": 2.0,
+      "dedicacion": 1.0,
+      "valor_unitario": 300000.0,
+      "factor_prestacional_aiu": 0.0,
+      "valor_total": 600000.0
+    },
+    {
+      "id": 9,
+      "capitulo_indirecto": "2. GASTOS INDIRECTOS",
+      "concepto": "Impuestos y Estampillas Departamentales",
+      "unidad": "Global",
+      "cantidad": 1.0,
+      "dedicacion": 1.0,
+      "valor_unitario": 12500000.0,
+      "factor_prestacional_aiu": 0.0,
+      "valor_total": 12500000.0
+    }
+  ],
+  "prestacionales": [
+    {
+      "id": 1,
+      "concepto": "Cesantías",
+      "categoria": "Prestaciones Sociales",
+      "riesgo": "Alto",
+      "rango_salarial": "1-2 SMMLV",
+      "valor": 0.0833,
+      "vigencia": 2026,
+      "fuente": "Normativa Laboral Colombiana 2026"
+    },
+    {
+      "id": 2,
+      "concepto": "Intereses de Cesantías",
+      "categoria": "Prestaciones Sociales",
+      "riesgo": "Alto",
+      "rango_salarial": "1-2 SMMLV",
+      "valor": 0.01,
+      "vigencia": 2026,
+      "fuente": "Normativa Laboral Colombiana 2026"
+    },
+    {
+      "id": 3,
+      "concepto": "Prima de Servicios",
+      "categoria": "Prestaciones Sociales",
+      "riesgo": "Alto",
+      "rango_salarial": "1-2 SMMLV",
+      "valor": 0.0833,
+      "vigencia": 2026,
+      "fuente": "Normativa Laboral Colombiana 2026"
+    },
+    {
+      "id": 4,
+      "concepto": "Vacaciones",
+      "categoria": "Prestaciones Sociales",
+      "riesgo": "Alto",
+      "rango_salarial": "1-2 SMMLV",
+      "valor": 0.0417,
+      "vigencia": 2026,
+      "fuente": "Normativa Laboral Colombiana 2026"
+    },
+    {
+      "id": 5,
+      "concepto": "Dotaciones",
+      "categoria": "Prestaciones Sociales",
+      "riesgo": "Alto",
+      "rango_salarial": "1-2 SMMLV",
+      "valor": 0.06,
+      "vigencia": 2026,
+      "fuente": "Normativa Laboral Colombiana 2026"
+    },
+    {
+      "id": 6,
+      "concepto": "Pensión Patronal",
+      "categoria": "Seguridad Social",
+      "riesgo": "Alto",
+      "rango_salarial": "1-2 SMMLV",
+      "valor": 0.12,
+      "vigencia": 2026,
+      "fuente": "Normativa Laboral Colombiana 2026"
+    },
+    {
+      "id": 7,
+      "concepto": "ARL (Nivel V Obra)",
+      "categoria": "Seguridad Social",
+      "riesgo": "Alto",
+      "rango_salarial": "1-2 SMMLV",
+      "valor": 0.0696,
+      "vigencia": 2026,
+      "fuente": "Normativa Laboral Colombiana 2026"
+    },
+    {
+      "id": 8,
+      "concepto": "Caja de Compensación Familiar",
+      "categoria": "Parafiscales",
+      "riesgo": "Alto",
+      "rango_salarial": "1-2 SMMLV",
+      "valor": 0.04,
+      "vigencia": 2026,
+      "fuente": "Normativa Laboral Colombiana 2026"
+    },
+    {
+      "id": 9,
+      "concepto": "FIC (Fondo Industria Construcción)",
+      "categoria": "Parafiscales",
+      "riesgo": "Alto",
+      "rango_salarial": "1-2 SMMLV",
+      "valor": 0.025,
+      "vigencia": 2026,
+      "fuente": "Normativa Laboral Colombiana 2026"
+    }
+  ],
+  "polizas": [
+    {
+      "id": 1,
+      "tipo_poliza": "Responsabilidad Civil Extracontractual (RCE)",
+      "limite_inferior": 0.0,
+      "limite_superior": 2135250000.0,
+      "cobertura_smmlv": 200.0,
+      "tarifa_valor": 0.001413,
+      "tarifa_fija": 402423.0,
+      "vigencia": 2026,
+      "fuente": "Resolución Pólizas Obras Caldas 2026"
+    },
+    {
+      "id": 2,
+      "tipo_poliza": "Responsabilidad Civil Extracontractual (RCE)",
+      "limite_inferior": 2135250000.0,
+      "limite_superior": 3558750000.0,
+      "cobertura_smmlv": 300.0,
+      "tarifa_valor": 0.000902,
+      "tarifa_fija": 385319.0,
+      "vigencia": 2026,
+      "fuente": "Resolución Pólizas Obras Caldas 2026"
+    },
+    {
+      "id": 3,
+      "tipo_poliza": "Cumplimiento del Contrato",
+      "limite_inferior": 0.0,
+      "limite_superior": 5000000000.0,
+      "cobertura_smmlv": 100.0,
+      "tarifa_valor": 0.0015,
+      "tarifa_fija": 350000.0,
+      "vigencia": 2026,
+      "fuente": "Resolución Pólizas Obras Caldas 2026"
+    },
+    {
+      "id": 4,
+      "tipo_poliza": "Buen Manejo del Anticipo",
+      "limite_inferior": 0.0,
+      "limite_superior": 5000000000.0,
+      "cobertura_smmlv": 100.0,
+      "tarifa_valor": 0.0012,
+      "tarifa_fija": 280000.0,
+      "vigencia": 2026,
+      "fuente": "Resolución Pólizas Obras Caldas 2026"
+    },
+    {
+      "id": 5,
+      "tipo_poliza": "Estabilidad de la Obra",
+      "limite_inferior": 0.0,
+      "limite_superior": 5000000000.0,
+      "cobertura_smmlv": 100.0,
+      "tarifa_valor": 0.0018,
+      "tarifa_fija": 420000.0,
+      "vigencia": 2026,
+      "fuente": "Resolución Pólizas Obras Caldas 2026"
+    }
+  ]
+}

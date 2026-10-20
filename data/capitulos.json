@@ -1,0 +1,261 @@
+[
+  {
+    "id": 1,
+    "codigo": "AB",
+    "descripcion": "ANALISIS BASICOS",
+    "categoria": "Capitulo",
+    "orden": 1
+  },
+  {
+    "id": 2,
+    "codigo": "001",
+    "descripcion": "PRELIMINARES",
+    "categoria": "Capitulo",
+    "orden": 2
+  },
+  {
+    "id": 3,
+    "codigo": "002",
+    "descripcion": "MOVIMIENTO DE TIERRAS",
+    "categoria": "Capitulo",
+    "orden": 3
+  },
+  {
+    "id": 4,
+    "codigo": "002A",
+    "descripcion": "CIMIENTOS",
+    "categoria": "Capitulo",
+    "orden": 4
+  },
+  {
+    "id": 5,
+    "codigo": "003",
+    "descripcion": "DESAGUES E INSTALACIONES SANITARIAS",
+    "categoria": "Capitulo",
+    "orden": 5
+  },
+  {
+    "id": 6,
+    "codigo": "004",
+    "descripcion": "PISOS-BASES-RELLENOS",
+    "categoria": "Capitulo",
+    "orden": 6
+  },
+  {
+    "id": 7,
+    "codigo": "005",
+    "descripcion": "ESTRUCTURAS EN CONCRETO, METALICAS Y DE MADERA",
+    "categoria": "Capitulo",
+    "orden": 7
+  },
+  {
+    "id": 8,
+    "codigo": "006",
+    "descripcion": "MUROS Y MAMPOSTERIA",
+    "categoria": "Capitulo",
+    "orden": 8
+  },
+  {
+    "id": 9,
+    "codigo": "007",
+    "descripcion": "INSTALACIONES HIDRAULICAS",
+    "categoria": "Capitulo",
+    "orden": 9
+  },
+  {
+    "id": 10,
+    "codigo": "08B",
+    "descripcion": "INSTALACIONES ELECTRICAS - REDES INTERNAS",
+    "categoria": "Capitulo",
+    "orden": 10
+  },
+  {
+    "id": 11,
+    "codigo": "009",
+    "descripcion": "REVOQUES-RESANES",
+    "categoria": "Capitulo",
+    "orden": 11
+  },
+  {
+    "id": 12,
+    "codigo": "010",
+    "descripcion": "CUBIERTAS",
+    "categoria": "Capitulo",
+    "orden": 12
+  },
+  {
+    "id": 13,
+    "codigo": "011",
+    "descripcion": "CIELO RASOS",
+    "categoria": "Capitulo",
+    "orden": 13
+  },
+  {
+    "id": 14,
+    "codigo": "012",
+    "descripcion": "PISOS - ACABADOS",
+    "categoria": "Capitulo",
+    "orden": 14
+  },
+  {
+    "id": 15,
+    "codigo": "013",
+    "descripcion": "ENCHAPES Y ACCESORIOS",
+    "categoria": "Capitulo",
+    "orden": 15
+  },
+  {
+    "id": 16,
+    "codigo": "014",
+    "descripcion": "VIDRIOS Y ESPEJOS",
+    "categoria": "Capitulo",
+    "orden": 16
+  },
+  {
+    "id": 17,
+    "codigo": "015",
+    "descripcion": "APARATOS SANITARIOS",
+    "categoria": "Capitulo",
+    "orden": 17
+  },
+  {
+    "id": 18,
+    "codigo": "016",
+    "descripcion": "CARPINTERIA EN MADERA",
+    "categoria": "Capitulo",
+    "orden": 18
+  },
+  {
+    "id": 19,
+    "codigo": "017",
+    "descripcion": "CARPINTERIA METALICA",
+    "categoria": "Capitulo",
+    "orden": 19
+  },
+  {
+    "id": 20,
+    "codigo": "018",
+    "descripcion": "CERRAJERIA",
+    "categoria": "Capitulo",
+    "orden": 20
+  },
+  {
+    "id": 21,
+    "codigo": "019",
+    "descripcion": "PINTURA",
+    "categoria": "Capitulo",
+    "orden": 21
+  },
+  {
+    "id": 22,
+    "codigo": "020",
+    "descripcion": "EQUIPOS ESPECIALES",
+    "categoria": "Capitulo",
+    "orden": 22
+  },
+  {
+    "id": 23,
+    "codigo": "021",
+    "descripcion": "OBRAS EXTERIORES",
+    "categoria": "Capitulo",
+    "orden": 23
+  },
+  {
+    "id": 24,
+    "codigo": "022",
+    "descripcion": "ASEO GENERAL Y LIMPIEZA",
+    "categoria": "Capitulo",
+    "orden": 24
+  },
+  {
+    "id": 25,
+    "codigo": "023",
+    "descripcion": "VIAS Y ANDENES",
+    "categoria": "Capitulo",
+    "orden": 25
+  },
+  {
+    "id": 26,
+    "codigo": "024",
+    "descripcion": "ALCANTARILLADO",
+    "categoria": "Capitulo",
+    "orden": 26
+  },
+  {
+    "id": 27,
+    "codigo": "025",
+    "descripcion": "ACUEDUCTO",
+    "categoria": "Capitulo",
+    "orden": 27
+  },
+  {
+    "id": 28,
+    "codigo": "26A",
+    "descripcion": "ALUMBRADO PUBLICO",
+    "categoria": "Capitulo",
+    "orden": 28
+  },
+  {
+    "id": 29,
+    "codigo": "027",
+    "descripcion": "ESTABILIDAD DE TALUDES",
+    "categoria": "Capitulo",
+    "orden": 29
+  },
+  {
+    "id": 30,
+    "codigo": "028",
+    "descripcion": "DESMONTES",
+    "categoria": "Capitulo",
+    "orden": 30
+  },
+  {
+    "id": 31,
+    "codigo": "029",
+    "descripcion": "DEMOLICIONES",
+    "categoria": "Capitulo",
+    "orden": 31
+  },
+  {
+    "id": 32,
+    "codigo": "030",
+    "descripcion": "JORNALES",
+    "categoria": "Capitulo",
+    "orden": 32
+  },
+  {
+    "id": 33,
+    "codigo": "031",
+    "descripcion": "ENSAYOS",
+    "categoria": "Capitulo",
+    "orden": 33
+  },
+  {
+    "id": 34,
+    "codigo": "032",
+    "descripcion": "ACTIVIDADES PARA PROYECTOS ESPECIFICOS",
+    "categoria": "Capitulo",
+    "orden": 34
+  },
+  {
+    "id": 35,
+    "codigo": "033",
+    "descripcion": "ACUEDUCTOS Y ALCANTARILLADOS",
+    "categoria": "Capitulo",
+    "orden": 35
+  },
+  {
+    "id": 36,
+    "codigo": "034",
+    "descripcion": "MOBILIARIO (PARQUES Y ESPACIO PUBLICO)",
+    "categoria": "Capitulo",
+    "orden": 36
+  },
+  {
+    "id": 37,
+    "codigo": "035",
+    "descripcion": "JUAN XXIII",
+    "categoria": "Capitulo",
+    "orden": 37
+  }
+]

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Presupuesto de Obra Pública — Infraestructura Educativa de Caldas</title>
+  <meta name="description" content="Plataforma web de formulación, administración, comparación y auditoría de presupuestos de obra pública para infraestructura educativa del departamento de Caldas.">
+  <link rel="stylesheet" href="./css/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%200%2032%2032%22><rect width=%2232%22 height=%2232%22 rx=%226%22 fill=%22%231b365d%22/><text x=%228%22 y=%2222%22 font-family=%22sans-serif%22 font-size=%2218%22 font-weight=%22bold%22 fill=%22%2310b981%22>C</text></svg>">
+  <!-- SheetJS for client-side Excel processing on GitHub Pages -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="app-sidebar" id="app-sidebar">
+      <div class="sidebar-header">
+        <div class="brand-emblem">GC</div>
+        <div class="brand-text">
+          <h1>CALDAS EDUCA</h1>
+          <span>Obras & Presupuestos 2026</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-title">Supervisión</div>
+        <a class="nav-item active" data-tab="dashboard" id="nav-dashboard">
+          <span class="nav-icon">📊</span>
+          <span>Tablero Ejecutivo</span>
+        </a>
+        <a class="nav-item" data-tab="territory" id="nav-territory">
+          <span class="nav-icon">🗺️</span>
+          <span>Navegación Territorial</span>
+        </a>
+
+        <div class="nav-section-title">Presupuestación</div>
+        <a class="nav-item" data-tab="projects" id="nav-projects">
+          <span class="nav-icon">🏗️</span>
+          <span>Proyectos de Obra</span>
+        </a>
+        <a class="nav-item" data-tab="budget_editor" id="nav-budget-editor">
+          <span class="nav-icon">📝</span>
+          <span>Editor de Presupuesto</span>
+        </a>
+        <a class="nav-item" data-tab="apus" id="nav-apus">
+          <span class="nav-icon">🔍</span>
+          <span>Análisis APU</span>
+        </a>
+        <a class="nav-item" data-tab="insumos" id="nav-insumos">
+          <span class="nav-icon">📦</span>
+          <span>Insumos y Precios</span>
+        </a>
+
+        <div class="nav-section-title">Control y Auditoría</div>
+        <a class="nav-item" data-tab="parameters" id="nav-parameters">
+          <span class="nav-icon">⚙️</span>
+          <span>Parámetros & AIU</span>
+        </a>
+        <a class="nav-item" data-tab="bulk_import" id="nav-bulk">
+          <span class="nav-icon">🔄</span>
+          <span>Importación Masiva</span>
+        </a>
+        <a class="nav-item" data-tab="compare" id="nav-compare">
+          <span class="nav-icon">⚖️</span>
+          <span>Comparar Escenarios</span>
+        </a>
+        <a class="nav-item" data-tab="reports" id="nav-reports">
+          <span class="nav-icon">📄</span>
+          <span>Reportes & Excel</span>
+        </a>
+        <a class="nav-item" data-tab="audit" id="nav-audit">
+          <span class="nav-icon">🛡️</span>
+          <span>Bitácora de Auditoría</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <span>Gobernación de Caldas</span>
+        <span class="badge badge-success" id="env-badge">Vigencia 2026</span>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="app-main">
+      <!-- Top App Bar -->
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <h2 class="page-title" id="page-current-title">Tablero Ejecutivo</h2>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Role Switcher -->
+          <div class="role-switcher-container">
+            <span class="role-label">Rol Activo:</span>
+            <select id="user-role-selector" class="role-select">
+              <option value="Administrador">Administrador</option>
+              <option value="Formulador" selected>Formulador</option>
+              <option value="Administrador de Costos">Administrador de Costos</option>
+              <option value="Revisor">Revisor</option>
+              <option value="Aprobador">Aprobador</option>
+              <option value="Auditor">Auditor</option>
+              <option value="Consulta">Consulta / Analista</option>
+            </select>
+          </div>
+
+          <!-- Theme Toggle -->
+          <button class="theme-toggle-btn" id="theme-toggle-btn" title="Alternar Modo Oscuro / Claro">
+            <span id="theme-icon">🌙</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Viewport Views -->
+      <div class="content-viewport" id="content-viewport">
+        <!-- Content will be injected here dynamically by app.js -->
+      </div>
+    </main>
+  </div>
+
+  <!-- Global Modal Container -->
+  <div class="modal-overlay" id="app-modal-overlay">
+    <div class="modal-card" id="app-modal-card">
+      <div class="modal-header">
+        <h3 id="modal-title">Título del Modal</h3>
+        <button class="btn btn-secondary btn-sm" id="modal-close-btn">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- Dynamic Modal Body Content -->
+      </div>
+      <div class="modal-footer" id="modal-footer">
+        <button class="btn btn-secondary" id="modal-cancel-btn">Cancelar</button>
+        <button class="btn btn-primary" id="modal-confirm-btn">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- App Script Entrypoint (Relative for GitHub Pages) -->
+  <script type="module" src="./js/app.js"></script>
+</body>
+</html>

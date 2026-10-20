@@ -1,0 +1,420 @@
+{
+  "departamento": {
+    "codigo_dane": "17",
+    "nombre": "Caldas"
+  },
+  "subregiones": [
+    {
+      "id": 1,
+      "codigo": "CS",
+      "nombre": "Centrosur",
+      "municipios": [
+        {
+          "id": 1,
+          "codigo_dane": "17001",
+          "nombre": "Manizales",
+          "instituciones": [
+            {
+              "id": 1,
+              "codigo_oficial": "117001000123",
+              "nombre": "INSTITUCIÓN EDUCATIVA UNIVERSITARIO DE CALDAS",
+              "rector": "Directivo Docente Encargado",
+              "estado": "Activo",
+              "sedes": [
+                {
+                  "id": 1,
+                  "codigo_dane": "11700100012301",
+                  "nombre": "SEDE PRINCIPAL UNIVERSITARIO",
+                  "direccion_vereda": "Carrera 23 # 45-12",
+                  "zona": "Urbana",
+                  "estado": "Activa"
+                },
+                {
+                  "id": 2,
+                  "codigo_dane": "11700100012302",
+                  "nombre": "SEDE PRIMARIA CARLOS CONCHA",
+                  "direccion_vereda": "Calle 48 # 22-10",
+                  "zona": "Urbana",
+                  "estado": "Activa"
+                }
+              ]
+            },
+            {
+              "id": 2,
+              "codigo_oficial": "117001000456",
+              "nombre": "INSTITUCIÓN EDUCATIVA INSTITUTO MANIZALES",
+              "rector": "Directivo Docente Encargado",
+              "estado": "Activo",
+              "sedes": [
+                {
+                  "id": 3,
+                  "codigo_dane": "11700100045601",
+                  "nombre": "SEDE PRINCIPAL INSTITUTO MANIZALES",
+                  "direccion_vereda": "Calle 14 # 21-45",
+                  "zona": "Urbana",
+                  "estado": "Activa"
+                },
+                {
+                  "id": 4,
+                  "codigo_dane": "11700100045602",
+                  "nombre": "SEDE SAN VICENTE DE PAUL",
+                  "direccion_vereda": "Vereda El Arenillo",
+                  "zona": "Rural",
+                  "estado": "Activa"
+                }
+              ]
+            },
+            {
+              "id": 3,
+              "codigo_oficial": "117001000789",
+              "nombre": "INSTITUCIÓN EDUCATIVA ESCUELA NORMAL SUPERIOR DE CALDAS",
+              "rector": "Directivo Docente Encargado",
+              "estado": "Activo",
+              "sedes": [
+                {
+                  "id": 5,
+                  "codigo_dane": "11700100078901",
+                  "nombre": "SEDE CENTRAL NORMAL",
+                  "direccion_vereda": "Avenida Santander # 59-00",
+                  "zona": "Urbana",
+                  "estado": "Activa"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "codigo_dane": "17174",
+          "nombre": "Chinchiná",
+          "instituciones": [
+            {
+              "id": 4,
+              "codigo_oficial": "117174000111",
+              "nombre": "INSTITUCIÓN EDUCATIVA BARTOLOMÉ MITRE",
+              "rector": "Directivo Docente Encargado",
+              "estado": "Activo",
+              "sedes": [
+                {
+                  "id": 6,
+                  "codigo_dane": "11717400011101",
+                  "nombre": "SEDE PRINCIPAL MITRE",
+                  "direccion_vereda": "Calle 10 # 8-24",
+                  "zona": "Urbana",
+                  "estado": "Activa"
+                },
+                {
+                  "id": 7,
+                  "codigo_dane": "11717400011102",
+                  "nombre": "SEDE MARÍA INMACULADA",
+                  "direccion_vereda": "Vereda La Quiebra",
+                  "zona": "Rural",
+                  "estado": "Activa"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "codigo_dane": "17486",
+          "nombre": "Neira",
+          "instituciones": []
+        },
+        {
+          "id": 4,
+          "codigo_dane": "17524",
+          "nombre": "Palestina",
+          "instituciones": []
+        },
+        {
+          "id": 5,
+          "codigo_dane": "17873",
+          "nombre": "Villamaría",
+          "instituciones": []
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "codigo": "AO",
+      "nombre": "Alto Occidente",
+      "municipios": [
+        {
+          "id": 6,
+          "codigo_dane": "17272",
+          "nombre": "Filadelfia",
+          "instituciones": []
+        },
+        {
+          "id": 7,
+          "codigo_dane": "17388",
+          "nombre": "La Merced",
+          "instituciones": []
+        },
+        {
+          "id": 8,
+          "codigo_dane": "17442",
+          "nombre": "Marmato",
+          "instituciones": []
+        },
+        {
+          "id": 9,
+          "codigo_dane": "17614",
+          "nombre": "Riosucio",
+          "instituciones": [
+            {
+              "id": 6,
+              "codigo_oficial": "117614000333",
+              "nombre": "INSTITUCIÓN EDUCATIVA SAN JERÓNIMO",
+              "rector": "Directivo Docente Encargado",
+              "estado": "Activo",
+              "sedes": [
+                {
+                  "id": 10,
+                  "codigo_dane": "11761400033301",
+                  "nombre": "SEDE PRINCIPAL SAN JERÓNIMO",
+                  "direccion_vereda": "Calle 7 # 6-30",
+                  "zona": "Urbana",
+                  "estado": "Activa"
+                },
+                {
+                  "id": 11,
+                  "codigo_dane": "11761400033302",
+                  "nombre": "SEDE RESGUARDO CAÑAMOMO LOMAPRIETA",
+                  "direccion_vereda": "Resguardo Indígena Cañamomo",
+                  "zona": "Rural",
+                  "estado": "Activa"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "codigo_dane": "17777",
+          "nombre": "Supía",
+          "instituciones": []
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "codigo": "BO",
+      "nombre": "Bajo Occidente",
+      "municipios": [
+        {
+          "id": 11,
+          "codigo_dane": "17042",
+          "nombre": "Anserma",
+          "instituciones": [
+            {
+              "id": 9,
+              "codigo_oficial": "117042000666",
+              "nombre": "INSTITUCIÓN EDUCATIVA DE OCCIDENTE",
+              "rector": "Directivo Docente Encargado",
+              "estado": "Activo",
+              "sedes": [
+                {
+                  "id": 15,
+                  "codigo_dane": "11704200066601",
+                  "nombre": "SEDE PRINCIPAL DE OCCIDENTE",
+                  "direccion_vereda": "Carrera 5 # 11-40",
+                  "zona": "Urbana",
+                  "estado": "Activa"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 12,
+          "codigo_dane": "17088",
+          "nombre": "Belalcázar",
+          "instituciones": []
+        },
+        {
+          "id": 13,
+          "codigo_dane": "17616",
+          "nombre": "Risaralda",
+          "instituciones": []
+        },
+        {
+          "id": 14,
+          "codigo_dane": "17665",
+          "nombre": "San José",
+          "instituciones": []
+        },
+        {
+          "id": 15,
+          "codigo_dane": "17877",
+          "nombre": "Viterbo",
+          "instituciones": []
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "codigo": "MC",
+      "nombre": "Magdalena Caldense",
+      "municipios": [
+        {
+          "id": 16,
+          "codigo_dane": "17380",
+          "nombre": "La Dorada",
+          "instituciones": [
+            {
+              "id": 5,
+              "codigo_oficial": "117380000222",
+              "nombre": "INSTITUCIÓN EDUCATIVA ALFONSO LÓPEZ",
+              "rector": "Directivo Docente Encargado",
+              "estado": "Activo",
+              "sedes": [
+                {
+                  "id": 8,
+                  "codigo_dane": "11738000022201",
+                  "nombre": "SEDE PRINCIPAL ALFONSO LÓPEZ",
+                  "direccion_vereda": "Carrera 4 # 12-50",
+                  "zona": "Urbana",
+                  "estado": "Activa"
+                },
+                {
+                  "id": 9,
+                  "codigo_dane": "11738000022202",
+                  "nombre": "SEDE GUAYINAS",
+                  "direccion_vereda": "Vereda Las Guayinas",
+                  "zona": "Rural",
+                  "estado": "Activa"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 17,
+          "codigo_dane": "17495",
+          "nombre": "Norcasia",
+          "instituciones": []
+        },
+        {
+          "id": 18,
+          "codigo_dane": "17662",
+          "nombre": "Samaná",
+          "instituciones": []
+        },
+        {
+          "id": 19,
+          "codigo_dane": "17867",
+          "nombre": "Victoria",
+          "instituciones": []
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "codigo": "OR",
+      "nombre": "Alto Oriente",
+      "municipios": [
+        {
+          "id": 20,
+          "codigo_dane": "17433",
+          "nombre": "Manzanares",
+          "instituciones": []
+        },
+        {
+          "id": 21,
+          "codigo_dane": "17444",
+          "nombre": "Marquetalia",
+          "instituciones": []
+        },
+        {
+          "id": 22,
+          "codigo_dane": "17446",
+          "nombre": "Marulanda",
+          "instituciones": []
+        },
+        {
+          "id": 23,
+          "codigo_dane": "17541",
+          "nombre": "Pensilvania",
+          "instituciones": [
+            {
+              "id": 8,
+              "codigo_oficial": "117541000555",
+              "nombre": "INSTITUCIÓN EDUCATIVA PENSILVANIA",
+              "rector": "Directivo Docente Encargado",
+              "estado": "Activo",
+              "sedes": [
+                {
+                  "id": 13,
+                  "codigo_dane": "11754100055501",
+                  "nombre": "SEDE INTEGRADA",
+                  "direccion_vereda": "Calle 4 # 5-20",
+                  "zona": "Urbana",
+                  "estado": "Activa"
+                },
+                {
+                  "id": 14,
+                  "codigo_dane": "11754100055502",
+                  "nombre": "SEDE VEREDA LA MERCED",
+                  "direccion_vereda": "Vereda La Merced Alta",
+                  "zona": "Rural",
+                  "estado": "Activa"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "codigo": "NT",
+      "nombre": "Norte",
+      "municipios": [
+        {
+          "id": 24,
+          "codigo_dane": "17013",
+          "nombre": "Aguadas",
+          "instituciones": [
+            {
+              "id": 7,
+              "codigo_oficial": "117013000444",
+              "nombre": "INSTITUCIÓN EDUCATIVA ESCUELA NORMAL SUPERIOR CLAUDINA MÚNERA",
+              "rector": "Directivo Docente Encargado",
+              "estado": "Activo",
+              "sedes": [
+                {
+                  "id": 12,
+                  "codigo_dane": "11701300044401",
+                  "nombre": "SEDE CENTRAL AGUADAS",
+                  "direccion_vereda": "Carrera 4 # 7-15",
+                  "zona": "Urbana",
+                  "estado": "Activa"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": 25,
+          "codigo_dane": "17050",
+          "nombre": "Aranzazu",
+          "instituciones": []
+        },
+        {
+          "id": 26,
+          "codigo_dane": "17513",
+          "nombre": "Pácora",
+          "instituciones": []
+        },
+        {
+          "id": 27,
+          "codigo_dane": "17653",
+          "nombre": "Salamina",
+          "instituciones": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+caldas_presupuesto.db
+
+# Scratch and inspection temporary files
+scratch_*
+*.log
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
