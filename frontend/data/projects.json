@@ -517,5 +517,96 @@
         ]
       }
     ]
+  },
+  {
+    "id": 4,
+    "codigo": "CALDAS-EDU-2026-00437",
+    "nombre": "Construcción Sanitarios Sede",
+    "tipo_intervencion": "Restauración",
+    "objeto": "asdasdasdsd",
+    "estado": "Borrador",
+    "responsable": "Funcionario Caldas",
+    "fuente_financiacion": "Recursos Propios Departamento de Caldas",
+    "fecha_inicio": null,
+    "fecha_fin": null,
+    "sedes": [
+      {
+        "sede_id": 7,
+        "codigo_dane": "11717400011102",
+        "nombre": "SEDE MARÍA INMACULADA",
+        "institucion": "INSTITUCIÓN EDUCATIVA BARTOLOMÉ MITRE",
+        "municipio": "Chinchiná",
+        "zona": "Rural",
+        "alcance_sede": "Intervención principal"
+      }
+    ],
+    "presupuestos": [
+      {
+        "id": 4,
+        "proyecto_id": 4,
+        "proyecto_codigo": "CALDAS-EDU-2026-00437",
+        "proyecto_nombre": "Construcción Sanitarios Sede",
+        "version": 1,
+        "vigencia": 2026,
+        "estado": "Borrador",
+        "costo_directo": 132708.0,
+        "costo_indirecto": 33177.0,
+        "porcentaje_aiu": 0.25,
+        "valor_total": 165885.0,
+        "moneda": "COP",
+        "observaciones": null,
+        "aprobado_por": null,
+        "fecha_aprobacion": null,
+        "capitulos": [
+          {
+            "capitulo_id": 1,
+            "codigo": "AB",
+            "descripcion": "ANALISIS BASICOS",
+            "subtotal_capitulo": 132708.0,
+            "items": [
+              {
+                "id": 27,
+                "item_num": "AB.1",
+                "actividad_id": 30,
+                "actividad_codigo": "001.006",
+                "actividad_desc": "DESCAPOTE MECANICO E=0.20 M.",
+                "unidad": "M2",
+                "cantidad": 2.0,
+                "precio_unitario": 2122.0,
+                "subtotal": 4244.0,
+                "orden": 1,
+                "observaciones": null
+              },
+              {
+                "id": 28,
+                "item_num": "AB.1",
+                "actividad_id": 84,
+                "actividad_codigo": "002.013",
+                "actividad_desc": "EXCAVACIÓN PARA ESTRUCTURAS - CONGLOMERADO - 2.0 -4.00 M",
+                "unidad": "M3",
+                "cantidad": 1.0,
+                "precio_unitario": 113344.0,
+                "subtotal": 113344.0,
+                "orden": 1,
+                "observaciones": null
+              },
+              {
+                "id": 29,
+                "item_num": "AB.1",
+                "actividad_id": 111,
+                "actividad_codigo": "002.057",
+                "actividad_desc": "REPALEO MANUAL",
+                "unidad": "M3",
+                "cantidad": 1.0,
+                "precio_unitario": 15120.0,
+                "subtotal": 15120.0,
+                "orden": 1,
+                "observaciones": null
+              }
+            ]
+          }
+        ]
+      }
+    ]
   }
 ]

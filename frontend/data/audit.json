@@ -1,1 +1,50 @@
-[]
+[
+  {
+    "id": 4,
+    "usuario": "Formulador",
+    "rol": "Administrador",
+    "entidad": "PresupuestoItem",
+    "registro_id": "29",
+    "campo": "creacion",
+    "valor_anterior": null,
+    "valor_nuevo": "Cant: 1.0000, Act: 002.057",
+    "motivo": "Adición de actividad al presupuesto",
+    "fecha": "2026-10-20T20:10:08.246522"
+  },
+  {
+    "id": 3,
+    "usuario": "Formulador",
+    "rol": "Administrador",
+    "entidad": "PresupuestoItem",
+    "registro_id": "28",
+    "campo": "creacion",
+    "valor_anterior": null,
+    "valor_nuevo": "Cant: 1.0000, Act: 002.013",
+    "motivo": "Adición de actividad al presupuesto",
+    "fecha": "2026-10-20T20:10:03.334989"
+  },
+  {
+    "id": 2,
+    "usuario": "Formulador",
+    "rol": "Administrador",
+    "entidad": "PresupuestoItem",
+    "registro_id": "27",
+    "campo": "creacion",
+    "valor_anterior": null,
+    "valor_nuevo": "Cant: 2.0000, Act: 001.006",
+    "motivo": "Adición de actividad al presupuesto",
+    "fecha": "2026-10-20T20:09:54.669288"
+  },
+  {
+    "id": 1,
+    "usuario": "Formulador",
+    "rol": "Formulador",
+    "entidad": "ProyectoObra",
+    "registro_id": "4",
+    "campo": "creacion",
+    "valor_anterior": null,
+    "valor_nuevo": "Construcción Sanitarios Sede",
+    "motivo": "Creación de proyecto con v1 inicial",
+    "fecha": "2026-10-20T20:02:27.890708"
+  }
+]

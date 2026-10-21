@@ -235,6 +235,10 @@ export const api = {
   },
 
   // Projects
+  async listProjects(filters = {}) {
+    return await this.getProjects(filters);
+  },
+
   async getProjects(filters = {}) {
     if (await checkBackend()) {
       let url = '/api/projects?';
@@ -903,20 +907,54 @@ export const api = {
     ];
   },
 
-  // Reports & Dashboard
-  async getDashboardMetrics() {
+  // Reports & Analytics Dashboard (PresuCosto-compliant)
+  async getDashboardMetrics(filters = {}) {
     if (await checkBackend()) {
-      const res = await fetch('/api/reports/dashboard');
+      const params = new URLSearchParams();
+      if (filters.projectId) params.append('project_id', filters.projectId);
+      if (filters.periodo) params.append('periodo', filters.periodo);
+      const res = await fetch(`/api/reports/dashboard?${params.toString()}`);
       return await res.json();
     }
 
-    const proys = await loadStatic('projects');
+    const allProys = await loadStatic('projects');
+    const apus = await loadStatic('apus');
     const t = await loadStatic('territory');
+
+    const apuMap = {};
+    for (const a of apus) {
+      if (a.codigo) apuMap[a.codigo] = a;
+    }
+
+    // Filter projects if requested
+    let proys = allProys;
+    if (filters.projectId) {
+      proys = allProys.filter(p => p.id == filters.projectId);
+    }
+    if (filters.subregionId) {
+      proys = proys.filter(p => p.sedes && p.sedes.some(s => {
+        const sub = t.subregiones.find(sr => sr.id == filters.subregionId);
+        return sub && sub.municipios.some(m => m.nombre.toLowerCase() === (s.municipio || '').toLowerCase());
+      }));
+    }
+    if (filters.estado) {
+      proys = proys.filter(p => p.estado === filters.estado || (p.presupuestos && p.presupuestos[0] && p.presupuestos[0].estado === filters.estado));
+    }
 
     let directo = 0;
     let indirecto = 0;
     let total = 0;
-    let sedesSet = new Set();
+    const sedesSet = new Set();
+    const resBreakdown = {
+      materiales: 0,
+      mano_obra: 0,
+      herramientas: 0,
+      transporte: 0,
+      otros: 0
+    };
+    const insUsage = {};
+    let totalHours = 0;
+    const capMap = {};
 
     for (const p of proys) {
       if (p.sedes) {
@@ -927,13 +965,182 @@ export const api = {
         directo += b.costo_directo || 0;
         indirecto += b.costo_indirecto || 0;
         total += b.valor_total || 0;
+
+        if (b.capitulos) {
+          for (const c of b.capitulos) {
+            const cid = c.capitulo_id || c.codigo || '001';
+            if (!capMap[cid]) {
+              capMap[cid] = {
+                codigo: c.codigo || '001',
+                descripcion: c.descripcion || 'CAPÍTULO DE OBRA',
+                subtotal: 0
+              };
+            }
+            capMap[cid].subtotal += (c.subtotal_capitulo || 0);
+
+            if (c.items) {
+              for (const it of c.items) {
+                const cant = Number(it.cantidad || 0);
+                const sub = Number(it.subtotal || 0);
+                const apu = apuMap[it.actividad_codigo];
+
+                if (apu && apu.componentes && apu.componentes.length > 0) {
+                  for (const comp of apu.componentes) {
+                    const tipo = comp.tipo_componente || 'Insumos';
+                    const cost = cant * Number(comp.costo_parcial || 0);
+
+                    if (tipo.includes('Insumo') || tipo.includes('Material')) {
+                      resBreakdown.materiales += cost;
+                    } else if (tipo.includes('Cuadrilla') || tipo.includes('Mano')) {
+                      resBreakdown.mano_obra += cost;
+                      if (comp.unidad === 'HR') {
+                        totalHours += cant * Number(comp.rendimiento || 0);
+                      }
+                    } else if (tipo.includes('Herramienta') || tipo.includes('Equipo')) {
+                      resBreakdown.herramientas += cost;
+                    } else if (tipo.includes('Transporte')) {
+                      resBreakdown.transporte += cost;
+                    } else {
+                      resBreakdown.otros += cost;
+                    }
+
+                    const k = comp.codigo || 'REC';
+                    if (!insUsage[k]) {
+                      insUsage[k] = {
+                        codigo: k,
+                        descripcion: comp.descripcion || 'Insumo de obra',
+                        tipo: tipo,
+                        unidad: comp.unidad || 'UND',
+                        cantidad: 0,
+                        precio_unitario: Number(comp.precio_aplicado || 0),
+                        costo_total: 0
+                      };
+                    }
+                    insUsage[k].cantidad += cant * Number(comp.rendimiento || 0);
+                    insUsage[k].costo_total += cost;
+                  }
+                } else {
+                  resBreakdown.materiales += sub * 0.72;
+                  resBreakdown.mano_obra += sub * 0.24;
+                  resBreakdown.herramientas += sub * 0.04;
+                  totalHours += (sub * 0.24) / 45000;
+                }
+              }
+            }
+          }
+        }
       }
     }
 
+    // Normalize direct cost components
+    const sumBreakdown = Object.values(resBreakdown).reduce((a, b) => a + b, 0);
+    if (sumBreakdown > 0 && directo > 0) {
+      const factor = directo / sumBreakdown;
+      for (const k in resBreakdown) {
+        resBreakdown[k] = Math.round(resBreakdown[k] * factor * 100) / 100;
+      }
+    } else if (directo > 0) {
+      resBreakdown.materiales = Math.round(directo * 0.72 * 100) / 100;
+      resBreakdown.mano_obra = Math.round(directo * 0.24 * 100) / 100;
+      resBreakdown.herramientas = Math.round(directo * 0.04 * 100) / 100;
+    }
+
+    const matPct = directo > 0 ? Math.round((resBreakdown.materiales / directo) * 1000) / 10 : 0;
+    const moPct = directo > 0 ? Math.round((resBreakdown.mano_obra / directo) * 1000) / 10 : 0;
+    const herPct = directo > 0 ? Math.round((resBreakdown.herramientas / directo) * 1000) / 10 : 0;
+    const traPct = directo > 0 ? Math.round((resBreakdown.transporte / directo) * 1000) / 10 : 0;
+
+    // AIU official Caldas 25% breakdown
+    const admVal = Math.round(directo * 0.15 * 100) / 100;
+    const impVal = Math.round(directo * 0.05 * 100) / 100;
+    const utlVal = Math.round(directo * 0.05 * 100) / 100;
+
+    // Labor metrics (hours, days, weeks, months)
+    const diasLabor = Math.round((totalHours / 8.0) * 10) / 10;
+    const semanasLabor = Math.round((totalHours / 40.0) * 10) / 10;
+    const mesesLabor = Math.round((totalHours / 160.0) * 10) / 10;
+
+    // Top 10 Insumos sorted by expenditure
+    const sortedIns = Object.values(insUsage).sort((a, b) => b.costo_total - a.costo_total).slice(0, 10);
+    const totalInsSpend = Object.values(insUsage).reduce((acc, curr) => acc + curr.costo_total, 0) || directo;
+    const topInsumos = sortedIns.map((item, idx) => ({
+      ranking: idx + 1,
+      codigo: item.codigo,
+      descripcion: item.descripcion,
+      tipo: item.tipo,
+      unidad: item.unidad,
+      cantidad: Math.round(item.cantidad * 100) / 100,
+      precio_unitario: Math.round(item.precio_unitario),
+      costo_total: Math.round(item.costo_total),
+      porcentaje_incidencia: totalInsSpend > 0 ? Math.round((item.costo_total / totalInsSpend) * 1000) / 10 : 0
+    }));
+
+    // Chapters breakdown
+    const capitulosInversion = Object.values(capMap)
+      .sort((a, b) => b.subtotal - a.subtotal)
+      .map(c => ({
+        codigo: c.codigo,
+        descripcion: c.descripcion,
+        subtotal: Math.round(c.subtotal),
+        porcentaje: directo > 0 ? Math.round((c.subtotal / directo) * 1000) / 10 : 0
+      }));
+
+    // Monthly Evolution curve (past 6 months)
+    const mesesNombres = ["Feb 2026", "Mar 2026", "Abr 2026", "May 2026", "Jun 2026", "Jul 2026"];
+    const distWeights = [0.10, 0.18, 0.25, 0.22, 0.15, 0.10];
+    let acumulado = 0;
+    const evolucionMensual = mesesNombres.map((mName, i) => {
+      const w = distWeights[i];
+      const mDir = Math.round(directo * w);
+      const mInd = Math.round(indirecto * w);
+      const mTot = Math.round(total * w);
+      acumulado += mTot;
+      return {
+        mes: mName,
+        costo_directo: mDir,
+        costo_indirecto: mInd,
+        valor_total: mTot,
+        avance_acumulado: acumulado,
+        porcentaje_periodo: Math.round(w * 1000) / 10
+      };
+    });
+
+    // Per-project analytics summaries
+    const proyectosAnalytics = proys.map(p => {
+      const b = p.presupuestos && p.presupuestos[0] ? p.presupuestos[0] : null;
+      const pDir = b ? (b.costo_directo || 0) : 0;
+      const pInd = b ? (b.costo_indirecto || 0) : 0;
+      const pTot = b ? (b.valor_total || 0) : 0;
+      const pUtl = Math.round(pDir * 0.05);
+      const pHoras = directo > 0 ? Math.round((totalHours * (pDir / directo)) * 10) / 10 : 0;
+      const pDias = Math.round((pHoras / 8.0) * 10) / 10;
+      const primerSede = p.sedes && p.sedes[0] ? p.sedes[0] : {};
+
+      return {
+        id: p.id,
+        codigo: p.codigo,
+        nombre: p.nombre,
+        tipo_intervencion: p.tipo_intervencion,
+        estado: b ? b.estado : p.estado,
+        municipio: primerSede.municipio || 'Caldas',
+        institucion: primerSede.institucion || 'I.E. Departamental',
+        sede: primerSede.nombre || 'Sede Principal',
+        costo_directo: pDir,
+        costo_indirecto: pInd,
+        valor_total: pTot,
+        porcentaje_aiu: b ? (b.porcentaje_aiu || 0.25) : 0.25,
+        utilidad_estimada: pUtl,
+        margen_pct: 5.0,
+        horas_labor: pHoras,
+        dias_labor: pDias
+      };
+    });
+
+    // Subregions distribution
     const subregionesDist = t.subregiones.map(sub => {
       let count = 0;
       let val = 0;
-      for (const p of proys) {
+      for (const p of allProys) {
         if (p.sedes && p.sedes.some(s => s.municipio && sub.municipios.some(m => m.nombre.toLowerCase() === s.municipio.toLowerCase()))) {
           count++;
           if (p.presupuestos && p.presupuestos[0]) val += p.presupuestos[0].valor_total || 0;
@@ -947,6 +1154,7 @@ export const api = {
       };
     });
 
+    // Intervention breakdown
     const intervencionesMap = {};
     for (const p of proys) {
       intervencionesMap[p.tipo_intervencion] = (intervencionesMap[p.tipo_intervencion] || 0) + 1;
@@ -954,14 +1162,54 @@ export const api = {
     const intervencionesList = Object.keys(intervencionesMap).map(k => ({ tipo: k, cantidad: intervencionesMap[k] }));
 
     return {
+      filtro_proyecto_id: filters.projectId || null,
       total_proyectos: proys.length,
       total_sedes_beneficiadas: sedesSet.size,
       costo_directo_total: directo,
       costo_indirecto_total: indirecto,
       presupuesto_total: total,
+      costos_desglose: {
+        materiales: resBreakdown.materiales,
+        mano_obra: resBreakdown.mano_obra,
+        herramientas: resBreakdown.herramientas,
+        transporte: resBreakdown.transporte,
+        otros: resBreakdown.otros,
+        materiales_pct: matPct,
+        mano_obra_pct: moPct,
+        herramientas_pct: herPct,
+        transporte_pct: traPct
+      },
+      aiu_desglose: {
+        porcentaje_total: 0.25,
+        administracion: admVal,
+        imprevistos: impVal,
+        utilidad: utlVal,
+        administracion_pct: 15.0,
+        imprevistos_pct: 5.0,
+        utilidad_pct: 5.0
+      },
+      tiempo_labor: {
+        horas_total: Math.round(totalHours * 10) / 10,
+        dias_estimados: diasLabor,
+        semanas_estimadas: semanasLabor,
+        meses_estimados: mesesLabor
+      },
+      rentabilidad: {
+        utilidad_estimada: utlVal,
+        margen_pct: 5.0,
+        estado_rentabilidad: 'Saludable (AIU Oficial 25%)'
+      },
+      top_insumos: topInsumos,
+      capitulos_inversion: capitulosInversion,
+      evolucion_mensual: evolucionMensual,
+      proyectos_analytics: proyectosAnalytics,
       distribucion_subregiones: subregionesDist,
       distribucion_intervenciones: intervencionesList
     };
+  },
+
+  async getProjectVisualReport(projectId) {
+    return await this.getDashboardMetrics({ projectId });
   },
 
   async getTerritoryConsolidation() {

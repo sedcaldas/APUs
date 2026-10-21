@@ -8,6 +8,12 @@ const state = {
   theme: localStorage.getItem('caldas_theme') || 'light',
   activeProjectId: null,
   activeBudgetId: 1, // Default initial budget
+  analyticsFilters: {
+    projectId: null,
+    subregionId: null,
+    estado: null,
+    periodo: 'ultimos_6_meses'
+  },
   territoryCache: {
     subregiones: [],
     municipios: [],
@@ -15,6 +21,18 @@ const state = {
     sedes: []
   }
 };
+
+let activeDashboardCharts = {};
+function destroyDashboardCharts() {
+  Object.keys(activeDashboardCharts).forEach(key => {
+    try {
+      if (activeDashboardCharts[key] && typeof activeDashboardCharts[key].destroy === 'function') {
+        activeDashboardCharts[key].destroy();
+      }
+    } catch (e) {}
+  });
+  activeDashboardCharts = {};
+}
 
 // DOM Elements
 const viewport = document.getElementById('content-viewport');
@@ -120,7 +138,7 @@ export function switchTab(tab, extraState = {}) {
   });
 
   const titles = {
-    dashboard: 'Tablero Ejecutivo de Control',
+    dashboard: 'Dashboard de Analytics & Control Presupuestal',
     territory: 'Navegación Territorial e Infraestructura Educativa',
     projects: 'Gestión de Proyectos de Obra',
     budget_editor: 'Editor de Presupuesto en Línea',
@@ -181,61 +199,1025 @@ function renderCurrentView() {
 }
 
 // -------------------------------------------------------------
-// MODULE 1: DASHBOARD
+// MODULE 1: DASHBOARD & ANALYTICS (PRESUCOSTO COMPLIANT)
 // -------------------------------------------------------------
 async function renderDashboard() {
+  destroyDashboardCharts();
+  viewport.innerHTML = '<div style="text-align:center; padding: 60px; color: var(--text-muted);"><div class="spinner" style="margin-bottom:12px;">⏳</div>Cargando Dashboard de Analytics & Reportes PresuCosto...</div>';
+
   try {
-    const data = await api.getDashboardMetrics();
-    const territoryStats = await api.getTerritoryStats();
+    const allProjects = await api.listProjects();
+    const subregiones = await api.getSubregiones();
+    const data = await api.getDashboardMetrics(state.analyticsFilters);
+
+    const isProjectScope = !!state.analyticsFilters.projectId;
+    const selectedProject = isProjectScope ? allProjects.find(p => p.id == state.analyticsFilters.projectId) : null;
 
     viewport.innerHTML = `
-      <!-- Top Metrics Summary -->
-      <div class="metrics-grid">
+      <!-- PresuCosto Analytics Toolbar -->
+      <div class="analytics-toolbar">
+        <div class="analytics-toolbar-left">
+          <div class="analytics-control-group">
+            <span class="analytics-control-label">Alcance / Presupuesto:</span>
+            <select id="analytics-scope-select" class="analytics-select scope-select" title="Seleccionar presupuesto específico o consolidado global">
+              <option value="" ${!isProjectScope ? 'selected' : ''}>📊 Consolidado Global (Todos los Presupuestos)</option>
+              ${allProjects.map(p => `
+                <option value="${p.id}" ${state.analyticsFilters.projectId == p.id ? 'selected' : ''}>
+                  📁 ${p.codigo} — ${p.nombre.length > 45 ? p.nombre.substring(0, 45) + '...' : p.nombre}
+                </option>
+              `).join('')}
+            </select>
+          </div>
+
+          <div class="analytics-control-group">
+            <span class="analytics-control-label">Periodo Temporal:</span>
+            <select id="analytics-periodo-select" class="analytics-select">
+              <option value="ultimos_6_meses" ${state.analyticsFilters.periodo === 'ultimos_6_meses' ? 'selected' : ''}>Últimos 6 Meses</option>
+              <option value="vigencia_2026" ${state.analyticsFilters.periodo === 'vigencia_2026' ? 'selected' : ''}>Vigencia Fiscal 2026</option>
+              <option value="historico" ${state.analyticsFilters.periodo === 'historico' ? 'selected' : ''}>Todo el Periodo</option>
+            </select>
+          </div>
+
+          <div class="analytics-control-group">
+            <span class="analytics-control-label">Subregión Caldas:</span>
+            <select id="analytics-subregion-select" class="analytics-select">
+              <option value="">Todas las Subregiones (${subregiones.length})</option>
+              ${subregiones.map(s => `<option value="${s.id}" ${state.analyticsFilters.subregionId == s.id ? 'selected' : ''}>${s.nombre}</option>`).join('')}
+            </select>
+          </div>
+
+          <div class="analytics-control-group">
+            <span class="analytics-control-label">Estado Presupuesto:</span>
+            <select id="analytics-estado-select" class="analytics-select">
+              <option value="">Todos los Estados</option>
+              <option value="Aprobado" ${state.analyticsFilters.estado === 'Aprobado' ? 'selected' : ''}>Aprobado Oficial</option>
+              <option value="En Revisión" ${state.analyticsFilters.estado === 'En Revisión' ? 'selected' : ''}>En Revisión</option>
+              <option value="Borrador" ${state.analyticsFilters.estado === 'Borrador' ? 'selected' : ''}>Borrador</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="analytics-toolbar-right">
+          <button class="btn btn-secondary btn-sm" id="btn-analytics-excel" title="Descargar libro de trabajo Excel con KPIs, Insumos y Rentabilidad">
+            <span>📥</span> Exportar Excel
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btn-analytics-pdf" title="Generar reporte ejecutivo imprimible en PDF">
+            <span>📄</span> Imprimir / PDF
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btn-analytics-refresh" title="Recalcular métricas de la cartera">
+            <span>🔄</span> Recalcular
+          </button>
+        </div>
+      </div>
+
+      ${isProjectScope && selectedProject ? `
+        <!-- Project Scope Banner -->
+        <div class="visual-report-hero" style="margin-bottom: 24px;">
+          <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap;">
+            <div>
+              <span class="badge badge-success" style="margin-bottom: 6px;">Reporte Visual Activo: ${selectedProject.codigo}</span>
+              <h2>${selectedProject.nombre}</h2>
+              <div class="visual-report-hero-meta">
+                <span>📍 Municipio: <strong>${selectedProject.sedes && selectedProject.sedes[0] ? selectedProject.sedes[0].municipio : 'Caldas'}</strong></span>
+                <span>🏫 Sede: <strong>${selectedProject.sedes && selectedProject.sedes[0] ? selectedProject.sedes[0].nombre : 'Principal'}</strong></span>
+                <span>🏷️ Tipo: <strong>${selectedProject.tipo_intervencion}</strong></span>
+                <span>👤 Responsable: <strong>${selectedProject.responsable || 'Secretaría de Educación'}</strong></span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-emerald btn-sm" id="btn-scope-to-editor">📝 Editar Presupuesto</button>
+              <button class="btn btn-secondary btn-sm" style="background: rgba(255,255,255,0.15); color: #fff; border:none;" id="btn-scope-reset">🌐 Ver Consolidado Global</button>
+            </div>
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- Top Executive Metrics Strip (PresuCosto KPIs) -->
+      <div class="metrics-grid" style="margin-bottom: 24px;">
+        <!-- KPI 1: Presupuesto Total -->
         <div class="metric-card accent-navy">
           <div class="metric-header">
-            <span class="metric-title">Presupuesto Total Caldas</span>
+            <span class="metric-title">Presupuesto Total de Obra</span>
             <span class="metric-icon-wrap">💰</span>
           </div>
           <div class="metric-value">${formatCOP(data.presupuesto_total)}</div>
-          <div class="metric-subtitle">Costo Directo + Indirectos (AIU 25%)</div>
+          <div class="metric-subtitle">Costo Directo + Indirectos AIU (25.00%)</div>
+          <div class="metric-pills-row">
+            <span class="micro-pill micro-pill-blue">Vigencia 2026</span>
+            <span class="micro-pill micro-pill-slate">${data.total_proyectos} ${data.total_proyectos === 1 ? 'obra' : 'obras'}</span>
+          </div>
         </div>
 
+        <!-- KPI 2: Costo Directo -->
         <div class="metric-card accent-emerald">
           <div class="metric-header">
             <span class="metric-title">Costo Directo Obra</span>
             <span class="metric-icon-wrap">🏗️</span>
           </div>
           <div class="metric-value">${formatCOP(data.costo_directo_total)}</div>
-          <div class="metric-subtitle">Total partidas y actividades de obra</div>
+          <div class="metric-subtitle">Total partidas y actividades ejecutadas</div>
+          <div class="metric-pills-row">
+            <span class="micro-pill micro-pill-emerald" title="Materiales e Insumos">🧱 Mat: ${data.costos_desglose.materiales_pct}%</span>
+            <span class="micro-pill micro-pill-blue" title="Mano de Obra y Cuadrillas">👷 MO: ${data.costos_desglose.mano_obra_pct}%</span>
+            <span class="micro-pill micro-pill-amber" title="Equipos y Herramientas">🚜 Eq: ${data.costos_desglose.herramientas_pct}%</span>
+          </div>
         </div>
 
+        <!-- KPI 3: Costos Indirectos AIU -->
         <div class="metric-card accent-amber">
           <div class="metric-header">
             <span class="metric-title">Costos Indirectos (AIU)</span>
             <span class="metric-icon-wrap">📐</span>
           </div>
           <div class="metric-value">${formatCOP(data.costo_indirecto_total)}</div>
-          <div class="metric-subtitle">Administración, Imprevistos, Utilidad, Pólizas</div>
+          <div class="metric-subtitle">Administración, Imprevistos y Utilidad Legal</div>
+          <div class="metric-pills-row">
+            <span class="micro-pill micro-pill-slate" title="Administración 15%">Adm 15% (${formatCOP(data.aiu_desglose.administracion)})</span>
+            <span class="micro-pill micro-pill-slate" title="Imprevistos 5%">Imp 5%</span>
+            <span class="micro-pill micro-pill-slate" title="Utilidad 5%">Utl 5%</span>
+          </div>
         </div>
 
+        <!-- KPI 4: Rentabilidad Estimada -->
         <div class="metric-card">
           <div class="metric-header">
-            <span class="metric-title">Cobertura Educativa</span>
+            <span class="metric-title">Rentabilidad Proyectada</span>
+            <span class="metric-icon-wrap">📈</span>
+          </div>
+          <div class="metric-value" style="color: var(--emerald-600);">${formatCOP(data.rentabilidad.utilidad_estimada)}</div>
+          <div class="metric-subtitle">Margen contractual neto del ${data.rentabilidad.margen_pct.toFixed(2)}%</div>
+          <div class="metric-pills-row">
+            <span class="micro-pill micro-pill-emerald">✨ ${data.rentabilidad.estado_rentabilidad}</span>
+          </div>
+        </div>
+
+        <!-- KPI 5: Tiempo de Labor Estimado (Horas-Hombre) -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Tiempo Estimado de Labor</span>
+            <span class="metric-icon-wrap">⏱️</span>
+          </div>
+          <div class="metric-value">${data.tiempo_labor.horas_total.toLocaleString('es-CO')} <span style="font-size: 15px; font-weight: 500; color: var(--text-muted);">Horas-Hombre</span></div>
+          <div class="labor-time-grid">
+            <div class="labor-time-item" title="Jornadas de 8 horas">
+              <span class="labor-time-val">${data.tiempo_labor.dias_estimados}</span>
+              <span class="labor-time-lbl">Días</span>
+            </div>
+            <div class="labor-time-item" title="Semanas de 40 horas laborales">
+              <span class="labor-time-val">${data.tiempo_labor.semanas_estimadas}</span>
+              <span class="labor-time-lbl">Semanas</span>
+            </div>
+            <div class="labor-time-item" title="Meses promedio de cuadrilla (160h)">
+              <span class="labor-time-val">${data.tiempo_labor.meses_estimados}</span>
+              <span class="labor-time-lbl">Meses</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- KPI 6: Cobertura de Cartera -->
+        <div class="metric-card">
+          <div class="metric-header">
+            <span class="metric-title">Cartera de Infraestructura</span>
             <span class="metric-icon-wrap">🏫</span>
           </div>
-          <div class="metric-value">${territoryStats.sedes_count} Sedes</div>
-          <div class="metric-subtitle">${territoryStats.municipios_count} Municipios en ${territoryStats.subregiones_count} Subregiones</div>
+          <div class="metric-value">${data.total_sedes_beneficiadas} Sedes</div>
+          <div class="metric-subtitle">${data.total_proyectos} Obras activas en Caldas</div>
+          <div class="metric-pills-row">
+            <span class="micro-pill micro-pill-purple">${data.distribucion_subregiones.length} Subregiones</span>
+            <span class="micro-pill micro-pill-emerald">100% Auditado</span>
+          </div>
         </div>
       </div>
 
-      <!-- Main Panels -->
-      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
-        <!-- Territorial Distribution -->
-        <div class="panel-card">
+      <!-- PresuCosto Interactive Charts Section -->
+      <div class="charts-grid-2col">
+        <!-- Chart 1: Donut Chart - Distribución de Costos Directos -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div class="chart-card-title">
+              <h3>🍩 Distribución de Costos Directos</h3>
+              <p>Desglose por componente: Materiales, Mano de Obra, Equipos y Transporte</p>
+            </div>
+            <span class="badge badge-success">Directo Total</span>
+          </div>
+          <div class="chart-card-body">
+            <div class="chart-canvas-container" id="container-donut-directos">
+              <canvas id="chart-donut-directos"></canvas>
+            </div>
+            <div class="chart-legend-wrap">
+              <div class="chart-legend-badge">
+                <span class="chart-color-dot" style="background: #059669;"></span>
+                <div class="chart-legend-badge-text">
+                  <strong>Materiales (${data.costos_desglose.materiales_pct}%)</strong>
+                  <span>${formatCOP(data.costos_desglose.materiales)}</span>
+                </div>
+              </div>
+              <div class="chart-legend-badge">
+                <span class="chart-color-dot" style="background: #2563eb;"></span>
+                <div class="chart-legend-badge-text">
+                  <strong>Mano de Obra (${data.costos_desglose.mano_obra_pct}%)</strong>
+                  <span>${formatCOP(data.costos_desglose.mano_obra)}</span>
+                </div>
+              </div>
+              <div class="chart-legend-badge">
+                <span class="chart-color-dot" style="background: #d97706;"></span>
+                <div class="chart-legend-badge-text">
+                  <strong>Herramientas / Eq (${data.costos_desglose.herramientas_pct}%)</strong>
+                  <span>${formatCOP(data.costos_desglose.herramientas)}</span>
+                </div>
+              </div>
+              <div class="chart-legend-badge">
+                <span class="chart-color-dot" style="background: #7c3aed;"></span>
+                <div class="chart-legend-badge-text">
+                  <strong>Transporte (${data.costos_desglose.transporte_pct}%)</strong>
+                  <span>${formatCOP(data.costos_desglose.transporte)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart 2: Bar Chart - Costo Directo vs AIU (Indirectos) -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div class="chart-card-title">
+              <h3>📊 Costos Directos vs Indirectos (AIU)</h3>
+              <p>Estructura contractual: Directo frente a Administración, Imprevistos y Utilidad</p>
+            </div>
+            <span class="badge badge-neutral">AIU 25%</span>
+          </div>
+          <div class="chart-card-body">
+            <div class="chart-canvas-container" id="container-bar-aiu">
+              <canvas id="chart-bar-aiu"></canvas>
+            </div>
+            <div class="chart-legend-wrap">
+              <div class="chart-legend-badge">
+                <span class="chart-color-dot" style="background: #1b365d;"></span>
+                <div class="chart-legend-badge-text">
+                  <strong>Directo (80%)</strong>
+                  <span>${formatCOP(data.costo_directo_total)}</span>
+                </div>
+              </div>
+              <div class="chart-legend-badge">
+                <span class="chart-color-dot" style="background: #3b82f6;"></span>
+                <div class="chart-legend-badge-text">
+                  <strong>Administración (15%)</strong>
+                  <span>${formatCOP(data.aiu_desglose.administracion)}</span>
+                </div>
+              </div>
+              <div class="chart-legend-badge">
+                <span class="chart-color-dot" style="background: #f59e0b;"></span>
+                <div class="chart-legend-badge-text">
+                  <strong>Imprevistos (5%)</strong>
+                  <span>${formatCOP(data.aiu_desglose.imprevistos)}</span>
+                </div>
+              </div>
+              <div class="chart-legend-badge">
+                <span class="chart-color-dot" style="background: #10b981;"></span>
+                <div class="chart-legend-badge-text">
+                  <strong>Utilidad (5%)</strong>
+                  <span>${formatCOP(data.aiu_desglose.utilidad)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart 3: Area/Line Chart - Evolución Temporal de Costos (Últimos 6 meses) -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div class="chart-card-title">
+              <h3>📈 Evolución Temporal de Costos</h3>
+              <p>Historial y proyección de desembolso presupuestal en los últimos 6 meses</p>
+            </div>
+            <span class="badge badge-success">Flujo de Obra</span>
+          </div>
+          <div class="chart-card-body">
+            <div class="chart-canvas-container" id="container-timeline-costos">
+              <canvas id="chart-timeline-costos"></canvas>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 14px; text-align: right;">
+              Acumulado proyectado al periodo: <strong>${formatCOP(data.presupuesto_total)}</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chart 4: Horizontal Bar Chart - Inversión por Capítulos de Obra -->
+        <div class="chart-card">
+          <div class="chart-card-header">
+            <div class="chart-card-title">
+              <h3>📑 Distribución por Capítulos de Obra</h3>
+              <p>Principales capítulos presupuestales y su peso en la inversión total</p>
+            </div>
+            <span class="badge badge-neutral">${data.capitulos_inversion.length} Capítulos</span>
+          </div>
+          <div class="chart-card-body">
+            <div class="chart-canvas-container" id="container-bar-capitulos">
+              <canvas id="chart-bar-capitulos"></canvas>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 14px; text-align: right;">
+              Capítulo con mayor impacto: <strong>${data.capitulos_inversion[0] ? data.capitulos_inversion[0].descripcion : 'Sin datos'}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PresuCosto Top 10 Insumos Más Utilizados (Pareto Matrix) -->
+      <div class="panel-card" style="margin-bottom: 24px;">
+        <div class="panel-header">
+          <div class="panel-header-title">
+            <h2>📦 Top 10 de Insumos Más Utilizados e Impacto Presupuestal</h2>
+            <p>Análisis de Pareto: Materiales, cuadrillas y equipos con mayor volumen de gasto en los presupuestos</p>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btn-goto-insumos-catalog">Ver Catálogo Completo</button>
+        </div>
+        <div class="panel-body">
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th style="width: 50px; text-align: center;">#</th>
+                  <th style="width: 100px;">Código</th>
+                  <th>Descripción del Insumo / Recurso</th>
+                  <th style="text-align: center;">Tipo</th>
+                  <th style="text-align: center;">Unidad</th>
+                  <th style="text-align: right;">Cantidad Acum.</th>
+                  <th style="text-align: right;">Precio Unitario</th>
+                  <th style="text-align: right;">Gasto Total</th>
+                  <th style="width: 180px;">Incidencia (% Gasto)</th>
+                  <th style="text-align: center;">Acción</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.top_insumos.length === 0 ? `
+                  <tr><td colspan="10" style="text-align:center; padding:30px; color:var(--text-muted);">No hay insumos registrados para el filtro actual.</td></tr>
+                ` : data.top_insumos.map((ins, i) => {
+                  let rankClass = 'rank-other';
+                  if (ins.ranking === 1) rankClass = 'rank-1';
+                  else if (ins.ranking === 2) rankClass = 'rank-2';
+                  else if (ins.ranking === 3) rankClass = 'rank-3';
+
+                  let tipoBadge = 'badge-neutral';
+                  let icon = '📦';
+                  if (ins.tipo.includes('Cuadrilla') || ins.tipo.includes('Mano')) {
+                    tipoBadge = 'badge-info';
+                    icon = '👷';
+                  } else if (ins.tipo.includes('Herramienta') || ins.tipo.includes('Equipo')) {
+                    tipoBadge = 'badge-warning';
+                    icon = '🚜';
+                  } else if (ins.tipo.includes('Material') || ins.tipo.includes('Insumo')) {
+                    tipoBadge = 'badge-success';
+                    icon = '🧱';
+                  }
+
+                  let barColorClass = '';
+                  if (ins.porcentaje_incidencia > 20) barColorClass = 'emerald';
+                  else if (ins.porcentaje_incidencia > 10) barColorClass = 'blue';
+                  else barColorClass = 'amber';
+
+                  return `
+                    <tr>
+                      <td style="text-align: center;">
+                        <span class="rank-badge ${rankClass}">${ins.ranking}</span>
+                      </td>
+                      <td><span class="table-code">${ins.codigo}</span></td>
+                      <td style="font-weight: 600;">${ins.descripcion}</td>
+                      <td style="text-align: center;">
+                        <span class="badge ${tipoBadge}">${icon} ${ins.tipo}</span>
+                      </td>
+                      <td style="text-align: center; font-weight: 600;">${ins.unidad}</td>
+                      <td style="text-align: right;">${ins.cantidad.toLocaleString('es-CO')}</td>
+                      <td style="text-align: right;">${formatCOP(ins.precio_unitario)}</td>
+                      <td style="text-align: right; font-weight: 700; color: var(--primary-700);">${formatCOP(ins.costo_total)}</td>
+                      <td>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                          <div class="pareto-progress-wrap">
+                            <div class="pareto-progress-fill ${barColorClass}" style="width: ${Math.min(100, ins.porcentaje_incidencia * 2)}%;"></div>
+                          </div>
+                          <span style="font-size: 11px; font-weight: 700; color: var(--text-muted); min-width: 38px;">${ins.porcentaje_incidencia}%</span>
+                        </div>
+                      </td>
+                      <td style="text-align: center;">
+                        <button class="btn btn-secondary btn-sm" onclick="window.exploreInsumo('${ins.codigo}')">🔍 Ver</button>
+                      </td>
+                    </tr>
+                  `;
+                }).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- PresuCosto Cartera y Rentabilidad por Proyecto (Ranking de Obras) -->
+      <div class="panel-card" style="margin-bottom: 24px;">
+        <div class="panel-header">
+          <div class="panel-header-title">
+            <h2>🏗️ Cartera de Presupuestos y Rentabilidad por Proyecto</h2>
+            <p>Supervisión ejecutiva de costos directos, indirectos, margen proyectado y tiempos de labor por obra</p>
+          </div>
+          <button class="btn btn-emerald btn-sm" id="btn-create-project-from-dashboard">➕ Formular Nueva Obra</button>
+        </div>
+        <div class="panel-body">
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Código</th>
+                  <th>Proyecto / Institución Educativa</th>
+                  <th>Municipio</th>
+                  <th style="text-align: right;">Costo Directo</th>
+                  <th style="text-align: right;">AIU (25%)</th>
+                  <th style="text-align: right;">Presupuesto Total</th>
+                  <th style="text-align: right;">Rentabilidad (5%)</th>
+                  <th style="text-align: center;">Tiempo Labor</th>
+                  <th style="text-align: center;">Estado</th>
+                  <th style="text-align: center;">Acciones PresuCosto</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${data.proyectos_analytics.length === 0 ? `
+                  <tr><td colspan="10" style="text-align:center; padding:30px; color:var(--text-muted);">No hay proyectos que coincidan con los filtros seleccionados.</td></tr>
+                ` : data.proyectos_analytics.map(p => `
+                  <tr class="project-row-interactive">
+                    <td><span class="table-code">${p.codigo}</span></td>
+                    <td>
+                      <div style="font-weight: 600; color: var(--text-main);">${p.nombre}</div>
+                      <div style="font-size: 11px; color: var(--text-muted);">${p.institucion || p.sede || ''}</div>
+                    </td>
+                    <td><span class="badge badge-neutral">📍 ${p.municipio}</span></td>
+                    <td style="text-align: right; font-weight: 600;">${formatCOP(p.costo_directo)}</td>
+                    <td style="text-align: right; color: var(--text-muted);">${formatCOP(p.costo_indirecto)}</td>
+                    <td style="text-align: right; font-weight: 700; color: var(--primary-700);">${formatCOP(p.valor_total)}</td>
+                    <td style="text-align: right; font-weight: 600; color: var(--emerald-600);">${formatCOP(p.utilidad_estimada)}</td>
+                    <td style="text-align: center;">
+                      <span class="badge badge-info" title="${p.horas_labor} horas">${p.dias_labor} Días</span>
+                    </td>
+                    <td style="text-align: center;">
+                      <span class="badge ${p.estado === 'Aprobado' ? 'badge-success' : p.estado === 'En Revisión' ? 'badge-warning' : 'badge-neutral'}">${p.estado}</span>
+                    </td>
+                    <td style="text-align: center;">
+                      <div style="display: inline-flex; gap: 6px;">
+                        <button class="btn btn-secondary btn-sm" onclick="window.openProjectVisualReport(${p.id})" title="Ver Reporte Visual PresuCosto">
+                          👁️ Reporte
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="window.openProjectEditor(${p.id})" title="Abrir en Editor de Presupuesto">
+                          📝 Presupuesto
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+
+    // ------------------------------------------------------------------------
+    // RENDER INTERACTIVE CHARTS (Chart.js or Graceful SVG Fallbacks)
+    // ------------------------------------------------------------------------
+    renderDashboardCharts(data);
+
+    // ------------------------------------------------------------------------
+    // EVENT LISTENERS: FILTERS AND ACTIONS
+    // ------------------------------------------------------------------------
+    const scopeSelect = document.getElementById('analytics-scope-select');
+    const periodoSelect = document.getElementById('analytics-periodo-select');
+    const subregionSelect = document.getElementById('analytics-subregion-select');
+    const estadoSelect = document.getElementById('analytics-estado-select');
+
+    scopeSelect.addEventListener('change', (e) => {
+      state.analyticsFilters.projectId = e.target.value ? parseInt(e.target.value, 10) : null;
+      renderDashboard();
+    });
+
+    periodoSelect.addEventListener('change', (e) => {
+      state.analyticsFilters.periodo = e.target.value;
+      renderDashboard();
+    });
+
+    subregionSelect.addEventListener('change', (e) => {
+      state.analyticsFilters.subregionId = e.target.value ? parseInt(e.target.value, 10) : null;
+      renderDashboard();
+    });
+
+    estadoSelect.addEventListener('change', (e) => {
+      state.analyticsFilters.estado = e.target.value || null;
+      renderDashboard();
+    });
+
+    document.getElementById('btn-analytics-refresh').addEventListener('click', () => {
+      showToast('Recalculando analítica y explosión de APUs...', 'info');
+      renderDashboard();
+    });
+
+    document.getElementById('btn-analytics-excel').addEventListener('click', () => {
+      exportAnalyticsToExcel(data);
+    });
+
+    document.getElementById('btn-analytics-pdf').addEventListener('click', () => {
+      window.print();
+    });
+
+    document.getElementById('btn-goto-insumos-catalog').addEventListener('click', () => {
+      switchTab('insumos');
+    });
+
+    document.getElementById('btn-create-project-from-dashboard').addEventListener('click', () => {
+      switchTab('projects');
+    });
+
+    if (isProjectScope) {
+      const btnToEditor = document.getElementById('btn-scope-to-editor');
+      if (btnToEditor) {
+        btnToEditor.addEventListener('click', () => {
+          switchTab('budget_editor', { activeProjectId: state.analyticsFilters.projectId });
+        });
+      }
+      const btnReset = document.getElementById('btn-scope-reset');
+      if (btnReset) {
+        btnReset.addEventListener('click', () => {
+          state.analyticsFilters.projectId = null;
+          renderDashboard();
+        });
+      }
+    }
+
+    // Global helper methods for inline buttons
+    window.exploreInsumo = (insumoCode) => {
+      switchTab('insumos', { filterSearch: insumoCode });
+    };
+
+    window.openProjectEditor = (projectId) => {
+      switchTab('budget_editor', { activeProjectId: projectId });
+    };
+
+    window.openProjectVisualReport = async (projectId) => {
+      await showProjectVisualReportModal(projectId);
+    };
+
+  } catch (err) {
+    console.error('Error rendering PresuCosto analytics dashboard:', err);
+    viewport.innerHTML = `
+      <div class="panel-card" style="padding: 40px; text-align: center; color: var(--rose-600);">
+        <h3>Error al cargar el Dashboard de Analytics</h3>
+        <p style="margin-top: 8px; color: var(--text-muted);">${err.message}</p>
+        <button class="btn btn-secondary" style="margin-top: 16px;" onclick="renderDashboard()">Reintentar</button>
+      </div>
+    `;
+  }
+}
+
+// -------------------------------------------------------------
+// CHARTS RENDER ENGINE: Chart.js with Resilient SVG Fallbacks
+// -------------------------------------------------------------
+function renderDashboardCharts(data) {
+  const hasChartJs = typeof window.Chart !== 'undefined';
+
+  // 1. Donut Chart: Distribución de Costos Directos
+  const donutCanvas = document.getElementById('chart-donut-directos');
+  if (donutCanvas) {
+    if (hasChartJs) {
+      activeDashboardCharts.donut = new window.Chart(donutCanvas.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Materiales', 'Mano de Obra', 'Herramientas y Eq', 'Transporte y Básicos'],
+          datasets: [{
+            data: [
+              data.costos_desglose.materiales,
+              data.costos_desglose.mano_obra,
+              data.costos_desglose.herramientas,
+              data.costos_desglose.transporte
+            ],
+            backgroundColor: ['#059669', '#2563eb', '#d97706', '#7c3aed'],
+            hoverOffset: 6,
+            borderWidth: 2,
+            borderColor: document.documentElement.getAttribute('data-theme') === 'dark' ? '#131c31' : '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '68%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const val = context.raw || 0;
+                  const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                  const pct = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
+                  return ` ${context.label}: ${formatCOP(val)} (${pct}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    } else {
+      // SVG Fallback for Donut
+      renderSvgDonut(donutCanvas.parentElement, [
+        { label: 'Materiales', val: data.costos_desglose.materiales, color: '#059669' },
+        { label: 'Mano de Obra', val: data.costos_desglose.mano_obra, color: '#2563eb' },
+        { label: 'Herramientas', val: data.costos_desglose.herramientas, color: '#d97706' },
+        { label: 'Transporte', val: data.costos_desglose.transporte, color: '#7c3aed' }
+      ], formatCOP(data.costo_directo_total));
+    }
+  }
+
+  // 2. Bar Chart: Costo Directo vs Indirecto AIU
+  const barAiuCanvas = document.getElementById('chart-bar-aiu');
+  if (barAiuCanvas) {
+    if (hasChartJs) {
+      activeDashboardCharts.barAiu = new window.Chart(barAiuCanvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: ['Costo Directo', 'Administración (15%)', 'Imprevistos (5%)', 'Utilidad (5%)'],
+          datasets: [{
+            label: 'Valor COP',
+            data: [
+              data.costo_directo_total,
+              data.aiu_desglose.administracion,
+              data.aiu_desglose.imprevistos,
+              data.aiu_desglose.utilidad
+            ],
+            backgroundColor: ['#1b365d', '#3b82f6', '#f59e0b', '#10b981'],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (c) => ` ${formatCOP(c.raw)}`
+              }
+            }
+          },
+          scales: {
+            y: {
+              ticks: {
+                callback: (v) => '$' + (v >= 1e6 ? (v / 1e6).toFixed(0) + 'M' : v.toLocaleString())
+              },
+              grid: { color: 'rgba(0,0,0,0.05)' }
+            },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+  }
+
+  // 3. Line/Area Chart: Evolución Temporal de Costos
+  const timelineCanvas = document.getElementById('chart-timeline-costos');
+  if (timelineCanvas) {
+    if (hasChartJs) {
+      activeDashboardCharts.timeline = new window.Chart(timelineCanvas.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: data.evolucion_mensual.map(m => m.mes),
+          datasets: [
+            {
+              label: 'Desembolso Mensual',
+              data: data.evolucion_mensual.map(m => m.valor_total),
+              borderColor: '#059669',
+              backgroundColor: 'rgba(16, 185, 129, 0.12)',
+              fill: true,
+              tension: 0.35,
+              borderWidth: 2,
+              pointRadius: 4,
+              pointBackgroundColor: '#059669'
+            },
+            {
+              label: 'Costo Directo Mensual',
+              data: data.evolucion_mensual.map(m => m.costo_directo),
+              borderColor: '#1b365d',
+              borderDash: [5, 5],
+              tension: 0.35,
+              borderWidth: 2,
+              pointRadius: 0
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'top', align: 'end', labels: { boxWidth: 12 } },
+            tooltip: {
+              callbacks: {
+                label: (c) => ` ${c.dataset.label}: ${formatCOP(c.raw)}`
+              }
+            }
+          },
+          scales: {
+            y: {
+              ticks: {
+                callback: (v) => '$' + (v >= 1e6 ? (v / 1e6).toFixed(0) + 'M' : v.toLocaleString())
+              },
+              grid: { color: 'rgba(0,0,0,0.05)' }
+            },
+            x: { grid: { display: false } }
+          }
+        }
+      });
+    }
+  }
+
+  // 4. Horizontal Bar Chart: Capítulos de Obra
+  const capitulosCanvas = document.getElementById('chart-bar-capitulos');
+  if (capitulosCanvas) {
+    const topCaps = data.capitulos_inversion.slice(0, 6);
+    if (hasChartJs) {
+      activeDashboardCharts.capitulos = new window.Chart(capitulosCanvas.getContext('2d'), {
+        type: 'bar',
+        data: {
+          labels: topCaps.map(c => c.descripcion.length > 25 ? c.descripcion.substring(0, 25) + '...' : c.descripcion),
+          datasets: [{
+            label: 'Inversión',
+            data: topCaps.map(c => c.subtotal),
+            backgroundColor: '#335d9c',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (c) => ` ${formatCOP(c.raw)} (${topCaps[c.dataIndex] ? topCaps[c.dataIndex].porcentaje : 0}%)`
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: {
+                callback: (v) => '$' + (v >= 1e6 ? (v / 1e6).toFixed(0) + 'M' : v.toLocaleString())
+              },
+              grid: { color: 'rgba(0,0,0,0.05)' }
+            },
+            y: { grid: { display: false } }
+          }
+        }
+      });
+    }
+  }
+}
+
+// Fallback SVG Donut Renderer for Offline Environments
+function renderSvgDonut(container, items, centerText) {
+  const total = items.reduce((a, b) => a + b.val, 0) || 1;
+  let accumulatedAngle = 0;
+  const radius = 80;
+  const cx = 100;
+  const cy = 100;
+  const strokeWidth = 28;
+
+  const svgPaths = items.map(item => {
+    const fraction = item.val / total;
+    if (fraction <= 0) return '';
+    const angle = fraction * 360;
+    const startAngle = accumulatedAngle;
+    const endAngle = accumulatedAngle + angle;
+    accumulatedAngle += angle;
+
+    const startRad = (startAngle - 90) * Math.PI / 180;
+    const endRad = (endAngle - 90) * Math.PI / 180;
+
+    const x1 = cx + radius * Math.cos(startRad);
+    const y1 = cy + radius * Math.sin(startRad);
+    const x2 = cx + radius * Math.cos(endRad);
+    const y2 = cy + radius * Math.sin(endRad);
+
+    const largeArc = angle > 180 ? 1 : 0;
+    const d = `M ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2}`;
+
+    return `<path d="${d}" fill="none" stroke="${item.color}" stroke-width="${strokeWidth}" />`;
+  }).join('');
+
+  container.innerHTML = `
+    <div class="svg-donut-wrap">
+      <svg viewBox="0 0 200 200" style="width: 220px; height: 220px;">
+        ${svgPaths}
+        <text x="100" y="98" class="svg-donut-center-text" font-size="14">${centerText}</text>
+        <text x="100" y="118" class="svg-donut-sub-text">Costo Directo</text>
+      </svg>
+    </div>
+  `;
+}
+
+// -------------------------------------------------------------
+// EXCEL EXPORT (PresuCosto Multi-Sheet Workbook via SheetJS)
+// -------------------------------------------------------------
+function exportAnalyticsToExcel(data) {
+  if (typeof XLSX === 'undefined') {
+    showToast('Biblioteca SheetJS no disponible para exportar Excel.', 'error');
+    return;
+  }
+
+  try {
+    const wb = XLSX.utils.book_new();
+
+    // Sheet 1: Resumen KPIs
+    const kpiRows = [
+      ['SISTEMA DE PRESUPUESTOS DE OBRA PÚBLICA — CALDAS 2026'],
+      ['TABLERO DE ANALYTICS & RESUMEN EJECUTIVO (PRESUCOSTO COMPLIANT)'],
+      ['Fecha de Emisión:', new Date().toLocaleString('es-CO')],
+      [],
+      ['MÉTRICA / INDICADOR', 'VALOR', 'DETALLE / FÓRMULA'],
+      ['Presupuesto Total de Obra', data.presupuesto_total, 'Costo Directo + AIU Oficial (25.00%)'],
+      ['Costo Directo Total', data.costo_directo_total, 'Total actividades contractuales'],
+      ['  - Materiales e Insumos', data.costos_desglose.materiales, `${data.costos_desglose.materiales_pct}% del costo directo`],
+      ['  - Mano de Obra y Cuadrillas', data.costos_desglose.mano_obra, `${data.costos_desglose.mano_obra_pct}% del costo directo`],
+      ['  - Herramientas y Equipos', data.costos_desglose.herramientas, `${data.costos_desglose.herramientas_pct}% del costo directo`],
+      ['  - Transportes y Básicos', data.costos_desglose.transporte, `${data.costos_desglose.transporte_pct}% del costo directo`],
+      ['Costos Indirectos (AIU 25%)', data.costo_indirecto_total, 'Administración (15%) + Imprevistos (5%) + Utilidad (5%)'],
+      ['  - Administración (15%)', data.aiu_desglose.administracion, 'Gastos de personal directivo, campamento, SST'],
+      ['  - Imprevistos (5%)', data.aiu_desglose.imprevistos, 'Contingencias contractuales'],
+      ['  - Utilidad (5%)', data.aiu_desglose.utilidad, 'Rentabilidad antes de impuestos'],
+      ['Tiempo de Labor Estimado (Horas-Hombre)', data.tiempo_labor.horas_total, 'Suma ponderada de rendimientos de cuadrilla'],
+      ['Tiempo de Labor en Días (8h)', data.tiempo_labor.dias_estimados, 'Jornadas ordinarias de 8 horas'],
+      ['Tiempo de Labor en Semanas (40h)', data.tiempo_labor.semanas_estimadas, 'Semanas de trabajo continuo'],
+      ['Obras en Gestión', data.total_proyectos, 'Proyectos analizados en el periodo'],
+      ['Sedes Educativas Beneficiadas', data.total_sedes_beneficiadas, 'Infraestructura educativa intervenida']
+    ];
+    const wsKpis = XLSX.utils.aoa_to_sheet(kpiRows);
+    XLSX.utils.book_append_sheet(wb, wsKpis, 'Resumen_KPIs');
+
+    // Sheet 2: Top 10 Insumos Más Utilizados
+    const insRows = [
+      ['RANKING', 'CÓDIGO', 'DESCRIPCIÓN DEL INSUMO', 'TIPO RECURSO', 'UNIDAD', 'CANTIDAD ACUMULADA', 'PRECIO UNITARIO (COP)', 'GASTO TOTAL (COP)', 'INCIDENCIA (%)']
+    ];
+    data.top_insumos.forEach(item => {
+      insRows.push([
+        item.ranking,
+        item.codigo,
+        item.descripcion,
+        item.tipo,
+        item.unidad,
+        item.cantidad,
+        item.precio_unitario,
+        item.costo_total,
+        item.porcentaje_incidencia
+      ]);
+    });
+    const wsIns = XLSX.utils.aoa_to_sheet(insRows);
+    XLSX.utils.book_append_sheet(wb, wsIns, 'Top_10_Insumos');
+
+    // Sheet 3: Cartera de Proyectos y Rentabilidad
+    const proyRows = [
+      ['CÓDIGO', 'PROYECTO DE OBRA', 'MUNICIPIO', 'SEDE', 'TIPO INTERVENCIÓN', 'COSTO DIRECTO (COP)', 'AIU 25% (COP)', 'PRESUPUESTO TOTAL (COP)', 'UTILIDAD 5% (COP)', 'HORAS LABOR (HH)', 'DÍAS LABOR', 'ESTADO']
+    ];
+    data.proyectos_analytics.forEach(p => {
+      proyRows.push([
+        p.codigo,
+        p.nombre,
+        p.municipio,
+        p.sede,
+        p.tipo_intervencion,
+        p.costo_directo,
+        p.costo_indirecto,
+        p.valor_total,
+        p.utilidad_estimada,
+        p.horas_labor,
+        p.dias_labor,
+        p.estado
+      ]);
+    });
+    const wsProy = XLSX.utils.aoa_to_sheet(proyRows);
+    XLSX.utils.book_append_sheet(wb, wsProy, 'Cartera_Proyectos');
+
+    const fileName = `PresuCosto_Analytics_Caldas_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+    showToast(`Archivo ${fileName} generado y descargado exitosamente.`, 'success');
+  } catch (err) {
+    console.error('Error exporting Excel:', err);
+    showToast('Error generando archivo Excel: ' + err.message, 'error');
+  }
+}
+
+// -------------------------------------------------------------
+// VISUAL REPORT MODAL (PRESUCOSTO "VER REPORTE")
+// -------------------------------------------------------------
+async function showProjectVisualReportModal(projectId) {
+  try {
+    const projDetail = await api.getProjectDetail(projectId);
+    const data = await api.getProjectVisualReport(projectId);
+
+    const b = projDetail.presupuestos && projDetail.presupuestos[0] ? projDetail.presupuestos[0] : {};
+    const sede = projDetail.sedes && projDetail.sedes[0] ? projDetail.sedes[0] : {};
+
+    const modalHtml = `
+      <div style="max-height: 75vh; overflow-y: auto; padding: 4px;">
+        <!-- Hero Header -->
+        <div class="visual-report-hero">
+          <span class="badge badge-success" style="margin-bottom: 6px;">Presupuesto v${b.version || 1} — Vigencia ${b.vigencia || 2026}</span>
+          <h2>${projDetail.nombre}</h2>
+          <div class="visual-report-hero-meta">
+            <span>🏛️ <strong>${sede.institucion || 'Institución Educativa'}</strong></span>
+            <span>📍 Municipio: <strong>${sede.municipio || 'Caldas'}</strong></span>
+            <span>🏫 Sede: <strong>${sede.nombre || 'Principal'}</strong></span>
+            <span>🔒 Estado: <strong>${b.estado || projDetail.estado}</strong></span>
+          </div>
+        </div>
+
+        <!-- 4 Key PresuCosto Metrics -->
+        <div class="visual-report-kpis-strip">
+          <div class="visual-report-kpi-card">
+            <div class="vr-title">Costo Directo</div>
+            <div class="vr-value">${formatCOP(data.costo_directo_total)}</div>
+            <div class="vr-sub">${b.capitulos ? b.capitulos.length : 0} Capítulos de obra</div>
+          </div>
+          <div class="visual-report-kpi-card">
+            <div class="vr-title">Costos Indirectos (AIU)</div>
+            <div class="vr-value">${formatCOP(data.costo_indirecto_total)}</div>
+            <div class="vr-sub">AIU Oficial ${( (b.porcentaje_aiu || 0.25) * 100 ).toFixed(0)}%</div>
+          </div>
+          <div class="visual-report-kpi-card">
+            <div class="vr-title">Valor Total Presupuesto</div>
+            <div class="vr-value" style="color: var(--primary-700);">${formatCOP(data.presupuesto_total)}</div>
+            <div class="vr-sub">Moneda: COP oficial</div>
+          </div>
+          <div class="visual-report-kpi-card">
+            <div class="vr-title">Tiempo Estimado de Labor</div>
+            <div class="vr-value">${data.tiempo_labor.horas_total} HH</div>
+            <div class="vr-sub">${data.tiempo_labor.dias_estimados} Días (~${data.tiempo_labor.semanas_estimadas} Semanas)</div>
+          </div>
+        </div>
+
+        <!-- Charts Grid for this Project -->
+        <div class="charts-grid-2col" style="margin-bottom: 20px;">
+          <!-- Project Donut -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <div class="chart-card-title">
+                <h3>🍩 Distribución de Costos Directos</h3>
+              </div>
+            </div>
+            <div class="chart-card-body">
+              <div class="chart-canvas-container" style="height: 220px;">
+                <canvas id="modal-chart-donut"></canvas>
+              </div>
+              <div class="chart-legend-wrap" style="grid-template-columns: repeat(2, 1fr);">
+                <div class="chart-legend-badge">
+                  <span class="chart-color-dot" style="background: #059669;"></span>
+                  <div class="chart-legend-badge-text">
+                    <strong>Materiales (${data.costos_desglose.materiales_pct}%)</strong>
+                    <span>${formatCOP(data.costos_desglose.materiales)}</span>
+                  </div>
+                </div>
+                <div class="chart-legend-badge">
+                  <span class="chart-color-dot" style="background: #2563eb;"></span>
+                  <div class="chart-legend-badge-text">
+                    <strong>Mano de Obra (${data.costos_desglose.mano_obra_pct}%)</strong>
+                    <span>${formatCOP(data.costos_desglose.mano_obra)}</span>
+                  </div>
+                </div>
+                <div class="chart-legend-badge">
+                  <span class="chart-color-dot" style="background: #d97706;"></span>
+                  <div class="chart-legend-badge-text">
+                    <strong>Equipos (${data.costos_desglose.herramientas_pct}%)</strong>
+                    <span>${formatCOP(data.costos_desglose.herramientas)}</span>
+                  </div>
+                </div>
+                <div class="chart-legend-badge">
+                  <span class="chart-color-dot" style="background: #7c3aed;"></span>
+                  <div class="chart-legend-badge-text">
+                    <strong>Transporte (${data.costos_desglose.transporte_pct}%)</strong>
+                    <span>${formatCOP(data.costos_desglose.transporte)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Project Chapters -->
+          <div class="chart-card">
+            <div class="chart-card-header">
+              <div class="chart-card-title">
+                <h3>📑 Inversión por Capítulos</h3>
+              </div>
+            </div>
+            <div class="chart-card-body">
+              <div class="chart-canvas-container" style="height: 220px;">
+                <canvas id="modal-chart-capitulos"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top 5 Insumos of Project -->
+        <div class="panel-card" style="margin-bottom: 0;">
           <div class="panel-header">
             <div class="panel-header-title">
-              <h2>Distribución Presupuestal por Subregión</h2>
-              <p>Inversión asignada a infraestructura educativa en las 6 subregiones de Caldas</p>
+              <h2>Top 5 Insumos Críticos de esta Obra</h2>
             </div>
           </div>
           <div class="panel-body">
@@ -243,21 +1225,25 @@ async function renderDashboard() {
               <table class="data-table">
                 <thead>
                   <tr>
-                    <th>Subregión</th>
-                    <th style="text-align: center;">Proyectos</th>
-                    <th style="text-align: right;">Presupuesto Asignado</th>
-                    <th style="text-align: center;">Acción</th>
+                    <th>#</th>
+                    <th>Insumo</th>
+                    <th style="text-align: center;">Tipo</th>
+                    <th style="text-align: right;">Cantidad</th>
+                    <th style="text-align: right;">Precio Ref.</th>
+                    <th style="text-align: right;">Subtotal</th>
+                    <th style="text-align: right;">Incidencia</th>
                   </tr>
                 </thead>
                 <tbody>
-                  ${data.distribucion_subregiones.map(sub => `
+                  ${data.top_insumos.slice(0, 5).map(ins => `
                     <tr>
-                      <td style="font-weight: 600;">${sub.nombre}</td>
-                      <td style="text-align: center;"><span class="badge badge-neutral">${sub.proyectos_count} obras</span></td>
-                      <td style="text-align: right; font-weight: 700; color: var(--primary-700);">${formatCOP(sub.valor_total)}</td>
-                      <td style="text-align: center;">
-                        <button class="btn btn-secondary btn-sm" onclick="window.exploreSubregion(${sub.subregion_id})">Ver Sedes</button>
-                      </td>
+                      <td style="font-weight: 700;">#${ins.ranking}</td>
+                      <td style="font-weight: 600;">${ins.descripcion}</td>
+                      <td style="text-align: center;"><span class="badge badge-neutral">${ins.tipo}</span></td>
+                      <td style="text-align: right;">${ins.cantidad} ${ins.unidad}</td>
+                      <td style="text-align: right;">${formatCOP(ins.precio_unitario)}</td>
+                      <td style="text-align: right; font-weight: 700;">${formatCOP(ins.costo_total)}</td>
+                      <td style="text-align: right; font-weight: 600; color: var(--emerald-600);">${ins.porcentaje_incidencia}%</td>
                     </tr>
                   `).join('')}
                 </tbody>
@@ -265,53 +1251,90 @@ async function renderDashboard() {
             </div>
           </div>
         </div>
-
-        <!-- Quick Actions & Status -->
-        <div>
-          <div class="panel-card">
-            <div class="panel-header">
-              <div class="panel-header-title">
-                <h2>Intervenciones</h2>
-                <p>Obras por tipología</p>
-              </div>
-            </div>
-            <div class="panel-body">
-              <div style="display: flex; flex-direction: column; gap: 12px;">
-                ${data.distribucion_intervenciones.map(item => `
-                  <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg-subtle); border-radius: var(--radius-sm);">
-                    <span style="font-weight: 500;">${item.tipo}</span>
-                    <span class="badge badge-success">${item.cantidad} obras</span>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          </div>
-
-          <div class="panel-card" style="background: linear-gradient(135deg, var(--primary-900) 0%, var(--primary-700) 100%); color: #ffffff;">
-            <div class="panel-body" style="padding: 24px;">
-              <h3 style="font-family: var(--font-heading); font-size: 17px; margin-bottom: 8px;">Operaciones Clave</h3>
-              <p style="font-size: 13px; color: #cbd5e1; margin-bottom: 20px;">Acceda rápidamente a los módulos principales de cálculo o cargue presupuestos.</p>
-              <div style="display: flex; flex-direction: column; gap: 10px;">
-                <button class="btn btn-emerald" id="btn-quick-new-project">➕ Formular Nuevo Proyecto</button>
-                <button class="btn btn-secondary" style="background: rgba(255,255,255,0.15); color: #fff; border: none;" id="btn-quick-bulk">🔄 Importar Cantidades Excel</button>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     `;
 
-    document.getElementById('btn-quick-new-project').addEventListener('click', () => switchTab('projects'));
-    document.getElementById('btn-quick-bulk').addEventListener('click', () => switchTab('bulk_import'));
+    openModal(`Reporte Visual de Presupuesto — ${projDetail.codigo}`, modalHtml, () => {
+      closeModal();
+      switchTab('budget_editor', { activeBudgetId: b.id, activeProjectId: projectId });
+    }, 'Abrir en Editor');
 
-    window.exploreSubregion = (subregionId) => {
-      switchTab('territory', { filterSubregionId: subregionId });
-    };
+    // Render Modal Charts
+    setTimeout(() => {
+      const modalDonut = document.getElementById('modal-chart-donut');
+      if (modalDonut && typeof window.Chart !== 'undefined') {
+        new window.Chart(modalDonut.getContext('2d'), {
+          type: 'doughnut',
+          data: {
+            labels: ['Materiales', 'Mano de Obra', 'Equipos', 'Transporte'],
+            datasets: [{
+              data: [
+                data.costos_desglose.materiales,
+                data.costos_desglose.mano_obra,
+                data.costos_desglose.herramientas,
+                data.costos_desglose.transporte
+              ],
+              backgroundColor: ['#059669', '#2563eb', '#d97706', '#7c3aed'],
+              cutout: '65%'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (c) => ` ${c.label}: ${formatCOP(c.raw)}`
+                }
+              }
+            }
+          }
+        });
+      }
 
-  } catch (err) {
-    viewport.innerHTML = `<div class="panel-card" style="padding: 30px; text-align: center; color: var(--rose-600);">Error cargando tablero: ${err.message}</div>`;
+      const modalCaps = document.getElementById('modal-chart-capitulos');
+      if (modalCaps && typeof window.Chart !== 'undefined') {
+        const topC = data.capitulos_inversion.slice(0, 5);
+        new window.Chart(modalCaps.getContext('2d'), {
+          type: 'bar',
+          data: {
+            labels: topC.map(c => c.descripcion.length > 20 ? c.descripcion.substring(0, 20) + '...' : c.descripcion),
+            datasets: [{
+              data: topC.map(c => c.subtotal),
+              backgroundColor: '#335d9c',
+              borderRadius: 4
+            }]
+          },
+          options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: (c) => ` ${formatCOP(c.raw)}`
+                }
+              }
+            },
+            scales: {
+              x: {
+                ticks: { callback: (v) => '$' + (v >= 1e6 ? (v / 1e6).toFixed(0) + 'M' : v) },
+                grid: { color: 'rgba(0,0,0,0.05)' }
+              },
+              y: { grid: { display: false } }
+            }
+          }
+        });
+      }
+    }, 100);
+
+  } catch (e) {
+    showToast('Error abriendo reporte visual: ' + e.message, 'error');
   }
 }
+
 
 // -------------------------------------------------------------
 // MODULE 2: TERRITORIO (Departamentos, Subregiones, Municipios, I.E., Sedes)

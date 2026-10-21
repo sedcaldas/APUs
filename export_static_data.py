@@ -19,10 +19,16 @@ def decimal_default(obj):
 
 def export_static_data():
     db: Session = SessionLocal()
-    out_dir = os.path.join("frontend", "data")
-    os.makedirs(out_dir, exist_ok=True)
+    out_dirs = [os.path.join("data"), os.path.join("frontend", "data")]
+    for d in out_dirs:
+        os.makedirs(d, exist_ok=True)
 
-    print("Exporting static data for GitHub Pages...")
+    def write_json(filename, data):
+        for d in out_dirs:
+            with open(os.path.join(d, filename), "w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False, indent=2, default=decimal_default)
+
+    print("Exporting static data for GitHub Pages and Standalone mode...")
 
     # 1. Territory
     subregiones = db.query(Subregion).all()
@@ -66,8 +72,7 @@ def export_static_data():
             for s in subregiones
         ]
     }
-    with open(os.path.join(out_dir, "territory.json"), "w", encoding="utf-8") as f:
-        json.dump(territory_data, f, ensure_ascii=False, indent=2, default=decimal_default)
+    write_json("territory.json", territory_data)
 
     # 2. Capitulos
     capitulos = db.query(Capitulo).order_by(Capitulo.orden).all()
@@ -75,8 +80,7 @@ def export_static_data():
         {"id": c.id, "codigo": c.codigo, "descripcion": c.descripcion, "categoria": c.categoria, "orden": c.orden}
         for c in capitulos
     ]
-    with open(os.path.join(out_dir, "capitulos.json"), "w", encoding="utf-8") as f:
-        json.dump(caps_data, f, ensure_ascii=False, indent=2)
+    write_json("capitulos.json", caps_data)
 
     # 3. Actividades
     actividades = db.query(Actividad).order_by(Actividad.codigo).all()
@@ -91,8 +95,7 @@ def export_static_data():
         }
         for a in actividades
     ]
-    with open(os.path.join(out_dir, "actividades.json"), "w", encoding="utf-8") as f:
-        json.dump(acts_data, f, ensure_ascii=False, indent=2)
+    write_json("actividades.json", acts_data)
 
     # 4. APUs
     apus = db.query(APU).all()
@@ -125,8 +128,7 @@ def export_static_data():
             "costo_directo_total": float(ap.costo_directo_total),
             "componentes": comps
         })
-    with open(os.path.join(out_dir, "apus.json"), "w", encoding="utf-8") as f:
-        json.dump(apus_data, f, ensure_ascii=False, indent=2)
+    write_json("apus.json", apus_data)
 
     # 5. Insumos
     insumos = db.query(Insumo).all()
@@ -145,8 +147,7 @@ def export_static_data():
             "precio_2026": float(p26 or 0),
             "precio_2025": float(p25 or 0)
         })
-    with open(os.path.join(out_dir, "insumos.json"), "w", encoding="utf-8") as f:
-        json.dump(ins_data, f, ensure_ascii=False, indent=2)
+    write_json("insumos.json", ins_data)
 
     # 6. Parameters (AIU, Prestacionales, Polizas)
     aiu_items = db.query(AnalisisIndirecto).filter(AnalisisIndirecto.presupuesto_id == None).all()
@@ -195,8 +196,7 @@ def export_static_data():
             for it in pol_items
         ]
     }
-    with open(os.path.join(out_dir, "parameters.json"), "w", encoding="utf-8") as f:
-        json.dump(parameters_data, f, ensure_ascii=False, indent=2)
+    write_json("parameters.json", parameters_data)
 
     # 7. Projects & Budgets
     proys = db.query(ProyectoObra).all()
@@ -279,8 +279,7 @@ def export_static_data():
             "presupuestos": budgets_list
         })
 
-    with open(os.path.join(out_dir, "projects.json"), "w", encoding="utf-8") as f:
-        json.dump(proys_data, f, ensure_ascii=False, indent=2)
+    write_json("projects.json", proys_data)
 
     # 8. Audit Logs
     audit_logs = db.query(AuditoriaCambio).order_by(AuditoriaCambio.id.desc()).all()
@@ -299,8 +298,7 @@ def export_static_data():
         }
         for a in audit_logs
     ]
-    with open(os.path.join(out_dir, "audit.json"), "w", encoding="utf-8") as f:
-        json.dump(audit_data, f, ensure_ascii=False, indent=2)
+    write_json("audit.json", audit_data)
 
     db.close()
     print("Static data exported successfully to frontend/data/")

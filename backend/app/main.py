@@ -46,14 +46,24 @@ def health_check():
         "database": "caldas_presupuesto.db"
     }
 
-# Mount static frontend files if folder exists
-frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "frontend")
+# Mount static frontend files
+root_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+frontend_dir = os.path.join(root_dir, "frontend")
+
+for folder in ["css", "js", "data"]:
+    f_path = os.path.join(root_dir, folder)
+    if os.path.exists(f_path):
+        app.mount(f"/{folder}", StaticFiles(directory=f_path), name=folder)
+
 if os.path.exists(frontend_dir):
     app.mount("/static", StaticFiles(directory=frontend_dir), name="static")
 
-    @app.get("/")
-    def serve_frontend():
-        index_file = os.path.join(frontend_dir, "index.html")
-        if os.path.exists(index_file):
-            return FileResponse(index_file)
-        return {"message": "Frontend en construcción", "docs": "/api/docs"}
+@app.get("/")
+def serve_frontend():
+    root_index = os.path.join(root_dir, "index.html")
+    if os.path.exists(root_index):
+        return FileResponse(root_index)
+    index_file = os.path.join(frontend_dir, "index.html")
+    if os.path.exists(index_file):
+        return FileResponse(index_file)
+    return {"message": "Frontend en construcción", "docs": "/api/docs"}
